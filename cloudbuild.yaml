@@ -1,59 +1,11 @@
 steps:
-  # Create the VPC network
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'compute'
-      - 'networks'
-      - 'create'
-      - 'custom-network-1'
-      - '--subnet-mode=custom'
-      - '--project=$PROJECT_ID'
-    waitFor: ['-'] # Run this step first
-
-  # Create the subnet
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'compute'
-      - 'networks'
-      - 'subnets'
-      - 'create'
-      - 'subnet-a'
-      - '--network=custom-network-1'
-      - '--range=10.0.1.0/24'
-      - '--region=asia-southeast2'
-      - '--project=$PROJECT_ID'
-    waitFor:
-      - 'gcloud-compute-networks-create' # Wait for network creation
-
-  # Create the VPC connector
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'compute'
-      - 'vpc-access'
-      - 'connectors'
-      - 'create'
-      - 'my-connector'
-      - '--network=custom-network-1'
-      - '--subnet=subnet-a'
-      - '--region=asia-southeast2'
-      - '--project=$PROJECT_ID'
-    waitFor:
-      - 'gcloud-compute-networks-subnets-create' # Wait for subnet creation
-
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/arcadecalculator:$COMMIT_SHA', '.']
-    waitFor:
-      - 'gcloud-compute-vpc-access-connectors-create' # Wait for connector creation
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/arcadecalculator:$COMMIT_SHA']
-    waitFor:
-      - 'docker-build' # Wait for image build
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -66,10 +18,6 @@ steps:
       - '--region=asia-southeast2'
       - '--platform=managed'
       - '--allow-unauthenticated'
-      - '--vpc-connector=my-connector'
-      - '--project=$PROJECT_ID'
-    waitFor:
-      - 'docker-push' # Wait for image push
 
 images:
   - 'gcr.io/$PROJECT_ID/arcadecalculator:$COMMIT_SHA'
