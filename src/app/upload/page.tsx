@@ -61,15 +61,14 @@ const ClientOnly = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 };
 
-
 export default function UploadPage() {
-  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [csvFiles, setCsvFiles] = useState<{ name: string; data: CsvRow[] }[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [stars, setStars] = useState<{id: number; left: string; top: string; animationDelay: string; size: string}[]>([]);
 
-  // useEffect to generate stars only on the client-side to prevent hydration errors.
   useEffect(() => {
     const generatedStars = Array.from({ length: 200 }, (_, i) => ({
       id: i,
@@ -81,8 +80,6 @@ export default function UploadPage() {
     setStars(generatedStars);
   }, []);
 
-
-  // Handles the file upload event.
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -95,9 +92,8 @@ export default function UploadPage() {
     setError(null);
     setLeaderboard([]);
 
-    // Parse all files and combine their data
     const parsePromises = Array.from(files).map(file => {
-      return new Promise<CsvRow[]>((resolve, reject) => {
+      return new Promise<{ name: string; data: CsvRow[] }>((resolve, reject) => {
         Papa.parse<CsvRow>(file, {
           header: true,
           skipEmptyLines: true,
@@ -105,7 +101,7 @@ export default function UploadPage() {
             if (results.errors.length) {
               reject('CSV parsing error: ' + results.errors[0].message);
             } else {
-              resolve(results.data);
+              resolve({ name: file.name, data: results.data });
             }
           },
         });
@@ -113,56 +109,67 @@ export default function UploadPage() {
     });
 
     Promise.all(parsePromises)
-      .then(async (allData) => {
-        const combinedRows = allData.flat();
-        setCsvRows(combinedRows);
+      .then(async (allFiles) => {
+        setCsvFiles(allFiles);
+        setSelectedFiles(allFiles.map((_, idx) => idx)); // Select all by default
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-
-        // Compute leaderboard data.
-        const leaderboardData = combinedRows.map((row) => {
-          const skillCount = parseInt(row["# Jumlah Skill Badge yang Diselesaikan"], 10) || 0;
-          const arcadeCount = parseInt(row["# Jumlah Game Arcade yang Diselesaikan"], 10) || 0;
-          const triviaCount = parseInt(row["# Jumlah Game Trivia yang Diselesaikan"], 10) || 0;
-
-          const arcadePoints = arcadeCount + triviaCount + (skillCount * 0.5);
-          let milestoneName = "";
-          let bonusPoints = 0;
-
-          if (arcadeCount >= 10 && triviaCount >= 8 && skillCount >= 44) {
-            milestoneName = "ULTIMATE MASTER";
-            bonusPoints = 25;
-          } else if (arcadeCount >= 8 && triviaCount >= 7 && skillCount >= 30) {
-            milestoneName = "GALAXY COMMANDER";
-            bonusPoints = 15;
-          } else if (arcadeCount >= 6 && triviaCount >= 6 && skillCount >= 20) {
-            milestoneName = "SPACE PILOT";
-            bonusPoints = 10;
-          } else if (arcadeCount >= 4 && triviaCount >= 4 && skillCount >= 10) {
-            milestoneName = "CADET";
-            bonusPoints = 5;
-          }
-
-          const totalPoints = arcadePoints + bonusPoints;
-          return {
-            nama: row["Nama Peserta"],
-            arcadePoints,
-            bonusPoints,
-            totalPoints,
-            milestone: milestoneName || "-",
-            skillCount,
-            arcadeCount,
-            triviaCount,
-          };
-        });
-
-        leaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
-        setLeaderboard(leaderboardData);
+        updateLeaderboard(allFiles, allFiles.map((_, idx) => idx));
         setLoading(false);
       })
       .catch((err) => {
         setError(typeof err === 'string' ? err : 'CSV parsing error');
         setLoading(false);
       });
+  };
+
+  const updateLeaderboard = (files: { name: string; data: CsvRow[] }[], selected: number[]) => {
+    const combinedRows = selected.flatMap(idx => files[idx]?.data || []);
+    const leaderboardData = combinedRows.map((row) => {
+      const skillCount = parseInt(row["# Jumlah Skill Badge yang Diselesaikan"], 10) || 0;
+      const arcadeCount = parseInt(row["# Jumlah Game Arcade yang Diselesaikan"], 10) || 0;
+      const triviaCount = parseInt(row["# Jumlah Game Trivia yang Diselesaikan"], 10) || 0;
+
+      const arcadePoints = arcadeCount + triviaCount + (skillCount * 0.5);
+      let milestoneName = "";
+      let bonusPoints = 0;
+
+      if (arcadeCount >= 10 && triviaCount >= 8 && skillCount >= 44) {
+        milestoneName = "3";
+        bonusPoints = 25;
+      } else if (arcadeCount >= 8 && triviaCount >= 7 && skillCount >= 30) {
+        milestoneName = "2";
+        bonusPoints = 15;
+      } else if (arcadeCount >= 6 && triviaCount >= 6 && skillCount >= 20) {
+        milestoneName = "2";
+        bonusPoints = 10;
+      } else if (arcadeCount >= 4 && triviaCount >= 4 && skillCount >= 10) {
+        milestoneName = "1";
+        bonusPoints = 5;
+      }
+
+      const totalPoints = arcadePoints + bonusPoints;
+      return {
+        nama: row["Nama Peserta"],
+        arcadePoints,
+        bonusPoints,
+        totalPoints,
+        milestone: milestoneName || "-",
+        skillCount,
+        arcadeCount,
+        triviaCount,
+      };
+    });
+    leaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
+    setLeaderboard(leaderboardData);
+  };
+
+  const handleCheckboxChange = (idx: number) => {
+    let updated = selectedFiles.includes(idx)
+      ? selectedFiles.filter(i => i !== idx)
+      : [...selectedFiles, idx];
+    updated = updated.sort();
+    setSelectedFiles(updated);
+    updateLeaderboard(csvFiles, updated);
   };
 
   // Determines the styling for the top 3 ranks.
@@ -224,7 +231,6 @@ export default function UploadPage() {
             N
         </div>
 
-
         <div className="relative z-10 flex flex-col items-center justify-start p-4 sm:p-8 min-h-screen">
           <div className="w-full max-w-7xl mx-auto">
             {/* Enhanced Header */}
@@ -250,6 +256,23 @@ export default function UploadPage() {
                 onChange={handleFileUpload}
                 className="w-full p-3 bg-slate-800 border-2 border-slate-600 text-white file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-yellow-400 file:text-black font-pixel text-sm hover:file:bg-yellow-300 focus:outline-none focus:border-yellow-400"
               />
+              {/* Checkbox selection for each file */}
+              {csvFiles.length > 0 && (
+                <div className="mt-4 flex flex-col gap-2">
+                  <span className="text-yellow-300 font-bold mb-2">Select CSV to show:</span>
+                  {csvFiles.map((file, idx) => (
+                    <label key={file.name} className="flex items-center gap-2 text-white">
+                      <input
+                        type="checkbox"
+                        checked={selectedFiles.includes(idx)}
+                        onChange={() => handleCheckboxChange(idx)}
+                        className="accent-yellow-400 w-4 h-4"
+                      />
+                      <span>{file.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* Error Message */}
@@ -299,10 +322,10 @@ export default function UploadPage() {
                             </td>
                             <td className="p-3">
                               <span className={`px-2 py-1 text-xs font-bold ${
-                                row.milestone === 'ULTIMATE MASTER'  ? 'bg-yellow-400 text-black'  
-                                : row.milestone === 'GALAXY COMMANDER' ? 'bg-purple-500 text-white'
-                                : row.milestone === 'SPACE PILOT' ? 'bg-blue-500 text-white'
-                                : row.milestone === 'CADET' ? 'bg-green-500 text-white'
+                                row.milestone === '3'  ? 'bg-yellow-400 text-black'  
+                                : row.milestone === '2' ? 'bg-purple-500 text-white'
+                                : row.milestone === '2' ? 'bg-blue-500 text-white'
+                                : row.milestone === '1' ? 'bg-green-500 text-white'
                                 : 'bg-slate-700 text-slate-300'
                               }`}>
                                 {row.milestone !== '-' ? row.milestone : 'N/A'}
@@ -326,6 +349,17 @@ export default function UploadPage() {
                           </tr>
                         ))}
                       </tbody>
+                      {/* Summary row for total score */}
+                      {leaderboard.length > 0 && (
+                        <tfoot>
+                          <tr className="border-t-2 border-yellow-400 bg-black/80">
+                            <td colSpan={7} className="p-3 text-right font-bold text-yellow-300">TOTAL SCORE</td>
+                            <td className="p-3 text-center text-lg font-bold text-yellow-400">
+                              {leaderboard.reduce((sum, row) => sum + Math.round(row.totalPoints), 0)}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      )}
                     </table>
                   </div>
                 </div>
