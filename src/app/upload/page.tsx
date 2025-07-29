@@ -67,7 +67,9 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
   type LeaderboardRow = {
     nama: string;
+    skillPoints: number;
     arcadePoints: number;
+    triviaPoints: number;
     bonusPoints: number;
     totalPoints: number;
     milestone: string;
@@ -139,7 +141,9 @@ export default function UploadPage() {
       const arcadeCount = parseInt(row["# Jumlah Game Arcade yang Diselesaikan"], 10) || 0;
       const triviaCount = parseInt(row["# Jumlah Game Trivia yang Diselesaikan"], 10) || 0;
 
-      const arcadePoints = arcadeCount + triviaCount + (skillCount * 0.5);
+      const skillPoints = skillCount * 0.5;
+      const arcadePoints = arcadeCount;
+      const triviaPoints = triviaCount;
       let milestoneName = "";
       let bonusPoints = 0;
 
@@ -157,10 +161,12 @@ export default function UploadPage() {
         bonusPoints = 5;
       }
 
-      const totalPoints = arcadePoints + bonusPoints;
+      const totalPoints = skillPoints + arcadePoints + triviaPoints + bonusPoints;
       return {
         nama: row["Nama Peserta"],
+        skillPoints,
         arcadePoints,
+        triviaPoints,
         bonusPoints,
         totalPoints,
         milestone: milestoneName || "-",
@@ -342,19 +348,19 @@ export default function UploadPage() {
                               </span>
                             </td>
                             <td className="p-3 text-center text-base font-bold text-cyan-300">
-                                {String(row.skillCount).padStart(2, '0')}
+                                {row.skillPoints.toFixed(1)}
                             </td>
                             <td className="p-3 text-center text-base font-bold text-pink-400">
-                                {String(row.arcadeCount).padStart(2, '0')}
+                                {row.arcadeCount}
                             </td>
                             <td className="p-3 text-center text-base font-bold text-green-400">
-                                {String(row.triviaCount).padStart(2, '0')}
+                                {row.triviaCount}
                             </td>
                             <td className="p-3 text-center text-base font-bold text-green-400">
-                                +{String(row.bonusPoints).padStart(2, '0')}
+                                +{row.bonusPoints}
                             </td>
                             <td className="p-3 text-center text-lg font-bold text-yellow-400">
-                                {String(Math.round(row.totalPoints)).padStart(3, '0')}
+                                {row.totalPoints % 1 === 0 ? row.totalPoints : row.totalPoints.toFixed(1)}
                             </td>
                           </tr>
                         ))}
