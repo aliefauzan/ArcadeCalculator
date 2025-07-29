@@ -65,7 +65,17 @@ export default function UploadPage() {
   const [csvFiles, setCsvFiles] = useState<{ name: string; data: CsvRow[] }[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  type LeaderboardRow = {
+    nama: string;
+    arcadePoints: number;
+    bonusPoints: number;
+    totalPoints: number;
+    milestone: string;
+    skillCount: number;
+    arcadeCount: number;
+    triviaCount: number;
+  };
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [stars, setStars] = useState<{id: number; left: string; top: string; animationDelay: string; size: string}[]>([]);
 
