@@ -10,15 +10,14 @@ steps:
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
-    args: [
-      'run',
-      'deploy',
-      '${_SERVICE_NAME}',
-      '--image=gcr.io/$PROJECT_ID/arcadecalculator:$COMMIT_SHA',
-      '--region=asia-southeast2',
-      '--platform=$PLATFORM',
-      '--allow-unauthenticated'
-    ]
+    args:
+      - 'run'
+      - 'deploy'
+      - 'arcade-calculator'
+      - '--image=gcr.io/$PROJECT_ID/arcade-calculator:$COMMIT_SHA'
+      - '--region=asia-southeast2'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
 
 images:
   - 'gcr.io/$PROJECT_ID/arcadecalculator:$COMMIT_SHA'
@@ -27,13 +26,7 @@ options:
   substitutionOption: ALLOW_LOOSE
   logging: CLOUD_LOGGING_ONLY
 
-substitutions:
-  _AR_PROJECT_ID: arcadecalculator
-  _PLATFORM: managed
-  _SERVICE_NAME: arcadecalculator
-  REPO_NAME: arcadecalculator
-  _AR_HOSTNAME: asia-southeast2-docker.pkg.dev
-  _AR_REPOSITORY: cloud-run-source-deploy
+
 
 tags:
   - gcp-cloud-build-deploy-cloud-run
