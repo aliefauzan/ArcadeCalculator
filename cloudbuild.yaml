@@ -15,7 +15,7 @@ steps:
       'deploy',
       '${_SERVICE_NAME}',
       '--image=gcr.io/$PROJECT_ID/arcadecalculator:$COMMIT_SHA',
-      '--region=$DEPLOY_REGION',
+      '--region=asia-southeast2',
       '--platform=$PLATFORM',
       '--allow-unauthenticated'
     ]
@@ -32,7 +32,6 @@ substitutions:
   _PLATFORM: managed
   _SERVICE_NAME: arcadecalculator
   REPO_NAME: arcadecalculator
-  _DEPLOY_REGION: asia-southeast2
   _AR_HOSTNAME: asia-southeast2-docker.pkg.dev
   _AR_REPOSITORY: cloud-run-source-deploy
 
