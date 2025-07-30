@@ -126,7 +126,7 @@ export default function UploadPage() {
         setSelectedFiles(allFiles.map((_, idx) => idx)); // Select all by default
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
         updateLeaderboard(allFiles, allFiles.map((_, idx) => idx));
-        setLoading(false);
+        // setLoading(false); // Removed: loading will be set to false after leaderboard update
       })
       .catch((err) => {
         setError(typeof err === 'string' ? err : 'CSV parsing error');
