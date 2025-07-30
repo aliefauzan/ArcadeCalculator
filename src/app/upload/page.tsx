@@ -134,12 +134,25 @@ export default function UploadPage() {
       });
   };
 
-  const updateLeaderboard = (files: { name: string; data: CsvRow[] }[], selected: number[]) => {
+  const updateLeaderboard = async (files: { name: string; data: CsvRow[] }[], selected: number[]) => {
     const combinedRows = selected.flatMap(idx => files[idx]?.data || []);
-    const leaderboardData = combinedRows.map((row) => {
-      const skillCount = parseInt(row["# Jumlah Skill Badge yang Diselesaikan"], 10) || 0;
-      const arcadeCount = parseInt(row["# Jumlah Game Arcade yang Diselesaikan"], 10) || 0;
-      const triviaCount = parseInt(row["# Jumlah Game Trivia yang Diselesaikan"], 10) || 0;
+    setLoading(true);
+    const leaderboardData = await Promise.all(combinedRows.map(async (row) => {
+      const profileUrl = row["URL Profil Google Cloud Skills Boost"];
+      let skillCount = 0, arcadeCount = 0, triviaCount = 0;
+      try {
+        const res = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: profileUrl })
+        });
+        const data = await res.json();
+        skillCount = data.skillBadgeCount || 0;
+        arcadeCount = data.arcadeBadgeCount || 0;
+        triviaCount = data.triviaBadgeCount || 0;
+      } catch (e) {
+        // fallback to 0 if scraping fails
+      }
 
       const skillPoints = skillCount * 0.5;
       const arcadePoints = arcadeCount;
@@ -174,9 +187,10 @@ export default function UploadPage() {
         arcadeCount,
         triviaCount,
       };
-    });
+    }));
     leaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
     setLeaderboard(leaderboardData);
+    setLoading(false);
   };
 
   const handleCheckboxChange = (idx: number) => {
