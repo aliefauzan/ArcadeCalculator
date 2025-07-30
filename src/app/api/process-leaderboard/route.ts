@@ -1,6 +1,3 @@
-// File: app/api/process-leaderboard/route.ts
-
-
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import Papa from 'papaparse';
@@ -54,12 +51,31 @@ async function scrapeProfile(url: string) {
       let skillBadgeCount = 0;
       let arcadeBadgeCount = 0;
       let triviaBadgeCount = 0;
-      
+
       const triviaRegex = /Skills Boost Arcade Trivia July 2025 Week [1-4]/i;
       const arcadeRegex = /Skills Boost Arcade Base Camp July 2025|Skills Boost Arcade Certification Zone July 2025|Work Meets Play: Banking With Empathy|Level 1: Core Infrastructure and Security|Level 2: Modern Application Deployment|Level 3: Advanced App Operations/i;
+      
+      // Define the minimum date for valid badges
+      const minDate = new Date('2025-07-15');
 
       badges.each((i, el) => {
         const badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
+        
+        // **START: Date Filtering Logic**
+        // Extract the full text content of the badge element to find the date
+        const earnedText = $(el).text();
+        const match = earnedText.match(/Earned\s+([A-Za-z]+\s+\d{1,2},\s*\d{4})/);
+
+        // If no "Earned" date is found, skip this badge
+        if (!match) return;
+        
+        const earnedDate = new Date(match[1]);
+
+        // If the badge was earned before the minimum date, skip it
+        if (earnedDate < minDate) return;
+        // **END: Date Filtering Logic**
+
+        // If the date is valid, proceed with counting the badge type
         if (triviaRegex.test(badgeTitle)) {
           triviaBadgeCount++;
         } else if (arcadeRegex.test(badgeTitle)) {
@@ -176,4 +192,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to process leaderboard' }, { status: 500 });
   }
 }
-// ...existing code...

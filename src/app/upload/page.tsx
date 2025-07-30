@@ -168,8 +168,11 @@ export default function UploadPage() {
     files: { name: string; data: CsvRow[] }[],
     selected: number[]
   ) => {
-    const combinedRows = selected.flatMap((idx) => files[idx]?.data || []);
+    // The backend now handles all date filtering, so we can combine rows directly.
+    const combinedRows = selected.flatMap(idx => files[idx]?.data || []);
+    
     setLoading(true);
+    // Use the combined rows directly
     const csvText = Papa.unparse(combinedRows);
 
     async function fetchLeaderboard(retries = 2): Promise<any[] | null> {
