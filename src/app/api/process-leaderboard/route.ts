@@ -1,11 +1,3 @@
-// File: app/api/process-leaderboard/route.ts
-
-
-import { NextResponse } from 'next/server';
-import * as cheerio from 'cheerio';
-import Papa from 'papaparse';
-
-// Define the structure for a row in the CSV
 interface CsvRow {
   "Nama Peserta": string;
   "URL Profil Google Cloud Skills Boost": string;
@@ -13,56 +5,78 @@ interface CsvRow {
 }
 
 // Helper function to scrape a single profile URL
+import { NextResponse } from 'next/server';
+import * as cheerio from 'cheerio';
+import Papa from 'papaparse';
+
+interface CsvRow {
+  "Nama Peserta": string;
+  "URL Profil Google Cloud Skills Boost": string;
+}
+
 async function scrapeProfile(url: string) {
   if (!url) {
     return { skillBadgeCount: 0, arcadeBadgeCount: 0, triviaBadgeCount: 0 };
   }
   try {
-    const response = await fetch(url, { cache: 'no-store' }); // Use no-store to get fresh data
+    const response = await fetch(url, { cache: 'no-store' });
     const html = await response.text();
     const $ = cheerio.load(html);
     const badges = $('.profile-badge');
     let skillBadgeCount = 0;
     let arcadeBadgeCount = 0;
     let triviaBadgeCount = 0;
-    const arcadePatterns = [/Level \d:/i, /Basecamp/i, /Cert(ification)? Zone/i, /Special Game/i, /Arcade Game/i];
-    const triviaPatterns = [/Trivia/i, /Arcade Trivia/i];
+    // Regex lists (ordered by specificity)
+    const triviaRegex = /Skills Boost Arcade Trivia July 2025 Week [1-4]/i;
+    const arcadeRegex = /Skills Boost Arcade Base Camp July 2025|Skills Boost Arcade Certification Zone July 2025|Level 1: Core Infrastructure and Security|Level 2: Modern Application Deployment|Level 3: Advanced App Operations|Work Meets Play: Banking With Empathy/i;
+
+    function getCategory(name: string): 'trivia' | 'arcade' | 'skill' {
+      if (triviaRegex.test(name)) return 'trivia';
+      if (arcadeRegex.test(name)) return 'arcade';
+      return 'skill';
+    }
     badges.each((i, el) => {
       let badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
-      if (arcadePatterns.some((pat) => pat.test(badgeTitle))) {
-        arcadeBadgeCount++;
-      } else if (triviaPatterns.some((pat) => pat.test(badgeTitle))) {
+      if (!badgeTitle) {
+        badgeTitle = $(el).text().trim();
+      }
+      // Check in order of specificity
+      const category = getCategory(badgeTitle);
+      if (category === 'trivia') {
         triviaBadgeCount++;
+      } else if (category === 'arcade') {
+        arcadeBadgeCount++;
       } else {
         skillBadgeCount++;
+        // Log unknown badge titles for review
+        if (badgeTitle) {
+          console.log('Unknown badge title (counted as skill):', badgeTitle);
+        } else {
+          console.log('Unknown badge element (no title):', $(el).html());
+        }
       }
     });
     return { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount };
   } catch (error) {
     console.error(`Failed to scrape ${url}:`, error);
-    // Return zero counts on failure so the process can continue
     return { skillBadgeCount: 0, arcadeBadgeCount: 0, triviaBadgeCount: 0 };
   }
 }
 
-// Main API endpoint to process the CSV
 export async function POST(request: Request) {
   try {
     const csvText = await request.text();
     if (!csvText) {
       return NextResponse.json({ error: 'CSV data is required' }, { status: 400 });
     }
-    // Parse the CSV text into JSON
     const parsedCsv = Papa.parse<CsvRow>(csvText, {
       header: true,
       skipEmptyLines: true,
     });
     const participants = parsedCsv.data;
-    // Scrape all profiles concurrently for speed
     const processingPromises = participants.map(async (participant) => {
       const { "Nama Peserta": nama, "URL Profil Google Cloud Skills Boost": url } = participant;
       const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount } = await scrapeProfile(url);
-      // --- Point calculation logic (moved from frontend to backend) ---
       const arcadeCount = arcadeBadgeCount;
       const triviaCount = triviaBadgeCount;
       const arcadePoints = arcadeCount + triviaCount + (skillBadgeCount * 0.5);
@@ -92,9 +106,7 @@ export async function POST(request: Request) {
         bonusPoints,
       };
     });
-    // Wait for all scraping and processing to complete
     const leaderboardData = await Promise.all(processingPromises);
-    // Sort the final leaderboard by total points
     leaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
     return NextResponse.json(leaderboardData);
   } catch (error) {
@@ -102,4 +114,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to process leaderboard' }, { status: 500 });
   }
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
