@@ -160,9 +160,9 @@ export default function UploadPage() {
     }
 
     const leaderboardData = await fetchLeaderboard(2);
-    if (leaderboardData) {
+    if (leaderboardData && leaderboardData.leaderboard) {
       setLeaderboard(
-        leaderboardData.map((row: any) => {
+        leaderboardData.leaderboard.map((row: any) => {
           // Map milestone names back to numbers for display
           let milestoneNum = "-";
           if (row.milestone === "ULTIMATE MASTER") milestoneNum = "3";

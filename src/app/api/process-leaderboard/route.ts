@@ -1,12 +1,31 @@
 // File: app/api/process-leaderboard/route.ts
 
+
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import Papa from 'papaparse';
+import crypto from 'crypto';
+
 
 interface CsvRow {
   "Nama Peserta": string;
   "URL Profil Google Cloud Skills Boost": string;
+}
+
+// Simple in-memory cache
+interface LeaderboardRow {
+  nama: string;
+  totalPoints: number;
+  milestone: string;
+  skillCount: number;
+  arcadeCount: number;
+  triviaCount: number;
+  bonusPoints: number;
+}
+const leaderboardCache: Record<string, LeaderboardRow[]> = {};
+
+function getCsvHash(csvText: string): string {
+  return crypto.createHash('sha256').update(csvText).digest('hex');
 }
 
 async function scrapeProfile(url: string) {
@@ -40,7 +59,7 @@ async function scrapeProfile(url: string) {
       const arcadeRegex = /Skills Boost Arcade Base Camp July 2025|Skills Boost Arcade Certification Zone July 2025|Work Meets Play: Banking With Empathy|Level 1: Core Infrastructure and Security|Level 2: Modern Application Deployment|Level 3: Advanced App Operations/i;
 
       badges.each((i, el) => {
-        let badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
+        const badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
         if (triviaRegex.test(badgeTitle)) {
           triviaBadgeCount++;
         } else if (arcadeRegex.test(badgeTitle)) {
@@ -98,6 +117,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'CSV data is required' }, { status: 400 });
     }
 
+    // Use hash of CSV content as cache key
+    const csvHash = getCsvHash(csvText);
+    if (leaderboardCache[csvHash]) {
+      return NextResponse.json({ cacheStatus: 'caching content', leaderboard: leaderboardCache[csvHash] });
+    }
+
     const parsedCsv = Papa.parse<CsvRow>(csvText, { header: true, skipEmptyLines: true });
     const participants = parsedCsv.data;
     const finalLeaderboardData = [];
@@ -142,10 +167,13 @@ export async function POST(request: Request) {
     }
 
     finalLeaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
-    return NextResponse.json(finalLeaderboardData);
+    leaderboardCache[csvHash] = finalLeaderboardData;
+    // NOTE: Frontend should use leaderboardData.leaderboard.map(...) instead of leaderboardData.map(...)
+    return NextResponse.json({ cacheStatus: 'fresh content', leaderboard: finalLeaderboardData });
 
   } catch (error) {
     console.error('Error processing leaderboard:', error);
     return NextResponse.json({ error: 'Failed to process leaderboard' }, { status: 500 });
   }
 }
+// ...existing code...
