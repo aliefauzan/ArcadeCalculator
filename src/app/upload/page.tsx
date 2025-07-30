@@ -137,59 +137,58 @@ export default function UploadPage() {
   const updateLeaderboard = async (files: { name: string; data: CsvRow[] }[], selected: number[]) => {
     const combinedRows = selected.flatMap(idx => files[idx]?.data || []);
     setLoading(true);
-    const leaderboardData = await Promise.all(combinedRows.map(async (row) => {
-      const profileUrl = row["URL Profil Google Cloud Skills Boost"];
-      let skillCount = 0, arcadeCount = 0, triviaCount = 0;
-      try {
-        const res = await fetch("/api/scrape", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: profileUrl })
-        });
-        const data = await res.json();
-        skillCount = data.skillBadgeCount || 0;
-        arcadeCount = data.arcadeBadgeCount || 0;
-        triviaCount = data.triviaBadgeCount || 0;
-      } catch (e) {
-        // fallback to 0 if scraping fails
+    // Convert combinedRows to CSV string using Papa.unparse
+    const csvText = Papa.unparse(combinedRows);
+
+    async function fetchLeaderboard(retries = 2): Promise<any[] | null> {
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const res = await fetch("/api/process-leaderboard", {
+            method: "POST",
+            headers: { "Content-Type": "text/csv" },
+            body: csvText
+          });
+          if (!res.ok) throw new Error('Failed to process leaderboard');
+          const leaderboardData = await res.json();
+          return leaderboardData;
+        } catch {
+          if (attempt === retries) return null;
+          await new Promise(resolve => setTimeout(resolve, 1200)); // Wait before retry
+        }
       }
+      return null;
+    }
 
-      const skillPoints = skillCount * 0.5;
-      const arcadePoints = arcadeCount;
-      const triviaPoints = triviaCount;
-      let milestoneName = "";
-      let bonusPoints = 0;
-
-      if (arcadeCount >= 10 && triviaCount >= 8 && skillCount >= 44) {
-        milestoneName = "3";
-        bonusPoints = 25;
-      } else if (arcadeCount >= 8 && triviaCount >= 7 && skillCount >= 30) {
-        milestoneName = "2";
-        bonusPoints = 15;
-      } else if (arcadeCount >= 6 && triviaCount >= 6 && skillCount >= 20) {
-        milestoneName = "2";
-        bonusPoints = 10;
-      } else if (arcadeCount >= 4 && triviaCount >= 4 && skillCount >= 10) {
-        milestoneName = "1";
-        bonusPoints = 5;
-      }
-
-      const totalPoints = skillPoints + arcadePoints + triviaPoints + bonusPoints;
-      return {
-        nama: row["Nama Peserta"],
-        skillPoints,
-        arcadePoints,
-        triviaPoints,
-        bonusPoints,
-        totalPoints,
-        milestone: milestoneName || "-",
-        skillCount,
-        arcadeCount,
-        triviaCount,
-      };
-    }));
-    leaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
-    setLeaderboard(leaderboardData);
+    const leaderboardData = await fetchLeaderboard(2);
+    if (leaderboardData) {
+      setLeaderboard(
+        leaderboardData.map((row: any) => {
+          // Map milestone names back to numbers for display
+          let milestoneNum = "-";
+          if (row.milestone === "ULTIMATE MASTER") milestoneNum = "3";
+          else if (row.milestone === "GALAXY COMMANDER") milestoneNum = "2";
+          else if (row.milestone === "SPACE PILOT") milestoneNum = "2";
+          else if (row.milestone === "CADET") milestoneNum = "1";
+          else if (["1","2","3","4"].includes(row.milestone)) milestoneNum = row.milestone;
+          return {
+            nama: row.nama,
+            skillPoints: row.skillCount * 0.5,
+            arcadePoints: row.arcadeCount,
+            triviaPoints: row.triviaCount,
+            bonusPoints: row.bonusPoints,
+            totalPoints: row.totalPoints,
+            milestone: milestoneNum,
+            skillCount: row.skillCount,
+            arcadeCount: row.arcadeCount,
+            triviaCount: row.triviaCount,
+          };
+        })
+      );
+      setError(null);
+    } else {
+      setError('Failed to process leaderboard after several attempts. Please try again.');
+      setLeaderboard([]);
+    }
     setLoading(false);
   };
 
@@ -315,8 +314,39 @@ export default function UploadPage() {
 
             {/* Loading Indicator */}
             {loading && (
-              <div className="border-2 border-yellow-400 text-yellow-400 p-6 mb-8 flex items-center justify-center gap-4">
-                <span className="text-lg animate-pulse">&gt; PROCESSING...</span>
+              <div className="border-2 border-yellow-400 bg-black/80 p-8 mb-8 flex flex-col items-center justify-center gap-4 relative overflow-hidden">
+                {/* Animated pixel spaceship */}
+                <div className="relative w-32 h-32 flex items-center justify-center">
+                  <PixelSpaceship className="animate-spin-slow" />
+                  {/* Animated stars */}
+                  {[...Array(12)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute rounded-full bg-yellow-300 opacity-80"
+                      style={{
+                        width: `${Math.random() * 4 + 2}px`,
+                        height: `${Math.random() * 4 + 2}px`,
+                        left: `${Math.random() * 90}%`,
+                        top: `${Math.random() * 90}%`,
+                        animation: `star-flicker 1.2s infinite ${Math.random()}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                <span className="text-lg animate-pulse font-pixel text-yellow-300 mt-4">&gt; SCRAPING &amp; CALCULATING...</span>
+                <style>{`
+                  @keyframes star-flicker {
+                    0%, 100% { opacity: 0.8; }
+                    50% { opacity: 0.2; }
+                  }
+                  .animate-spin-slow {
+                    animation: spin 2.5s linear infinite;
+                  }
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
               </div>
             )}
 
