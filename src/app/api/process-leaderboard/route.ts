@@ -71,7 +71,7 @@ async function scrapeProfile(url: string) {
 
         // If no "Earned" date is found, skip this badge
         if (!match) {
-          console.log(`❌ SKIPPED - No date found: "${badgeTitle}"`);
+          // console.log(`❌ SKIPPED - No date found: "${badgeTitle}"`);
           return;
         }
         
@@ -79,19 +79,19 @@ async function scrapeProfile(url: string) {
 
         // If the badge was earned before the minimum date, skip it
         if (earnedDate < minDate) {
-          console.log(`❌ SKIPPED - Date too early (${match[1]}): "${badgeTitle}"`);
+          // console.log(`❌ SKIPPED - Date too early (${match[1]}): "${badgeTitle}"`);
           return;
         }
         // **END: Date Filtering Logic**
 
         // Badge classification logic (based on shiwildy/Kalkulator-Arcade approach)
         const normalizedTitle = badgeTitle.toLowerCase();
-        console.log(`🔍 Processing badge: "${badgeTitle}"`);
+        // console.log(`🔍 Processing badge: "${badgeTitle}"`);
         
         // **START: Completion Badge Filtering**
         // Skip completion badges as they shouldn't count toward Arcade points
         if (completionRegex.test(badgeTitle)) {
-          console.log(`❌ SKIPPED - Completion badge: "${badgeTitle}"`);
+          // console.log(`❌ SKIPPED - Completion badge: "${badgeTitle}"`);
           return;
         }
         // **END: Completion Badge Filtering**
@@ -99,7 +99,7 @@ async function scrapeProfile(url: string) {
 
         // Check for "extra" badges first (highest priority)
         if (extraSkillRegex.test(badgeTitle)) {
-          console.log(`🎯 EXTRASKILL DETECTED: "${badgeTitle}"`);
+          // console.log(`🎯 EXTRASKILL DETECTED: "${badgeTitle}"`);
           badgeType = 'extra';
         }
         // Check for trivia badges
@@ -129,24 +129,24 @@ async function scrapeProfile(url: string) {
 
         // Count the badge based on its determined type
         if (badgeType === 'trivia') {
-          console.log(`➡️ TRIVIA: "${badgeTitle}"`);
+          // console.log(`➡️ TRIVIA: "${badgeTitle}"`);
           triviaBadgeCount++;
         } else if (badgeType === 'extra') {
-          console.log(`➡️ EXTRASKILL: "${badgeTitle}"`);
+          // console.log(`➡️ EXTRASKILL: "${badgeTitle}"`);
           extraSkillBadgeCount++; // Count extraskill badges separately
         } else if (badgeType === 'arcade') {
-          console.log(`➡️ ARCADE: "${badgeTitle}"`);
+          // console.log(`➡️ ARCADE: "${badgeTitle}"`);
           arcadeBadgeCount++;
         } else if (badgeType === 'skill') {
-          console.log(`➡️ SKILL: "${badgeTitle}"`);
+          // console.log(`➡️ SKILL: "${badgeTitle}"`);
           skillBadgeCount++;
         } else {
-          console.log(`❓ UNKNOWN: "${badgeTitle}" - type: ${badgeType}`);
+          // console.log(`❓ UNKNOWN: "${badgeTitle}" - type: ${badgeType}`);
         }
       });
 
-      console.log(`📊 Final counts - Skill: ${skillBadgeCount}, Arcade: ${arcadeBadgeCount}, Trivia: ${triviaBadgeCount}, ExtraSkill: ${extraSkillBadgeCount}`);
-      console.log(`📊 Display counts - Combined Arcade: ${arcadeBadgeCount + extraSkillBadgeCount}, Trivia: ${triviaBadgeCount}`);
+      // console.log(`📊 Final counts - Skill: ${skillBadgeCount}, Arcade: ${arcadeBadgeCount}, Trivia: ${triviaBadgeCount}, ExtraSkill: ${extraSkillBadgeCount}`);
+      // console.log(`📊 Display counts - Combined Arcade: ${arcadeBadgeCount + extraSkillBadgeCount}, Trivia: ${triviaBadgeCount}`);
 
       return { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount };
 
