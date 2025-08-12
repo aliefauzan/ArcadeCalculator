@@ -55,7 +55,7 @@ async function scrapeProfile(url: string) {
 
       const triviaRegex = /Skills Boost Arcade Trivia July 2025 Week [1-4]|Skills Boost Arcade Trivia August 2025 Week [1-4]/i;
       const arcadeRegex = /Skills Boost Arcade Base Camp July 2025|Skills Boost Arcade Certification Zone July 2025|Work Meets Play: Banking With Empathy|Level 1: Core Infrastructure and Security|Level 2: Modern Application Deployment|Level 3: Advanced App Operations|Skills Boost Arcade Base Camp August 2025|Level 1: Application Design and Delivery|Level 2: Building with Cloud Tools|Level 3: Terraform Essentials/i;
-      const extraSkillRegex = /extra|ekstrakill|Arcade ExtraSkillesTrail|ExtraSkillestrial!|Future Ready Skills/i;
+      const extraSkillRegex = /extra|ekstrakill|Arcade ExtraSkillesTrail|ExtraSkillestrial!|ExtraSkillestrial|Future Ready Skills/i;
       const completionRegex = /completion|completed/i;
       
       // Define the minimum date for valid badges
