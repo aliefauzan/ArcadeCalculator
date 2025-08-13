@@ -1,8 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { LeaderboardPDF } from "./LeaderboardPDF"; // Adjust path if needed
+import dynamic from "next/dynamic";
+
+// Dynamically import the PDF component to avoid SSR issues
+const PDFDownloadButton = dynamic(
+  () => import("../../components/PDFDownloadButton").then((mod) => ({ default: mod.PDFDownloadButton })),
+  { 
+    ssr: false,
+    loading: () => <div className="bg-yellow-400 text-black font-pixel text-sm p-3 border-2 border-slate-600">Loading PDF...</div>
+  }
+);
 
 // Interface for the structure of each row in the uploaded CSV file.
 interface CsvRow {
@@ -431,15 +439,7 @@ export default function UploadPage() {
               <section className="w-full mt-4">
                 <div className="flex justify-end mb-4">
                   <ClientOnly>
-                    <PDFDownloadLink
-                      document={<LeaderboardPDF data={leaderboard} />}
-                      fileName="arcade-leaderboard.pdf"
-                      className="bg-yellow-400 text-black font-pixel text-sm p-3 border-2 border-slate-600 hover:bg-yellow-300"
-                    >
-                      {({ blob, url, loading, error }) =>
-                        loading ? "LOADING PDF..." : "DOWNLOAD PDF"
-                      }
-                    </PDFDownloadLink>
+                    <PDFDownloadButton data={leaderboard} />
                   </ClientOnly>
                 </div>
 
