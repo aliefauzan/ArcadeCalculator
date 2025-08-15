@@ -207,8 +207,8 @@ export default function UploadPage() {
       setLeaderboard(
         leaderboardData.leaderboard.map((row: any) => {
           let milestoneNum = "-";
-          if (row.milestone === "ULTIMATE MASTER") milestoneNum = "3";
-          else if (row.milestone === "GALAXY COMMANDER") milestoneNum = "2";
+          if (row.milestone === "ULTIMATE MASTER") milestoneNum = "ULTIMATE";
+          else if (row.milestone === "GALAXY COMMANDER") milestoneNum = "3";
           else if (row.milestone === "SPACE PILOT") milestoneNum = "2";
           else if (row.milestone === "CADET") milestoneNum = "1";
           else if (["1", "2", "3", "4"].includes(row.milestone))
@@ -493,10 +493,12 @@ export default function UploadPage() {
                             <td className="p-3 text-white font-bold text-sm tracking-wide">
                               {row.nama.toUpperCase()}
                             </td>
-                            <td className="p-3">
+                            <td className="p-3 text-center">
                               <span
                                 className={`px-2 py-1 text-xs font-bold ${
-                                  row.milestone === "3"
+                                  row.milestone === "ULTIMATE"
+                                    ? "bg-gradient-to-r from-pink-500 to-violet-600 text-white border border-pink-300"
+                                    : row.milestone === "3"
                                     ? "bg-yellow-400 text-black"
                                     : row.milestone === "2"
                                     ? "bg-purple-500 text-white"

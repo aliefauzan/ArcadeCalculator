@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     width: "11%",
     textAlign: "center",
+    color: "white", // Default white color
   },
   pilotCell: {
     width: "23%",
@@ -71,6 +72,39 @@ const styles = StyleSheet.create({
   },
   scoreCell: {
     color: "#facc15",
+  },
+  // Milestone color styles
+  ultimateMilestone: {
+    color: "#ec4899", // Pink for ULTIMATE
+    fontWeight: "bold",
+  },
+  milestone3: {
+    color: "#facc15", // Yellow for level 3
+    fontWeight: "bold",
+  },
+  milestone2: {
+    color: "#a855f7", // Purple for level 2
+    fontWeight: "bold",
+  },
+  milestone1: {
+    color: "#22c55e", // Green for level 1
+    fontWeight: "bold",
+  },
+  milestoneNA: {
+    color: "#94a3b8", // Gray for N/A
+  },
+  // Other column colors
+  skillCell: {
+    color: "#06b6d4", // Cyan for skill points
+  },
+  arcadeCell: {
+    color: "#f472b6", // Pink for arcade count
+  },
+  triviaCell: {
+    color: "#22c55e", // Green for trivia count
+  },
+  bonusCell: {
+    color: "#22c55e", // Green for bonus points
   },
 });
 
@@ -86,6 +120,15 @@ type LeaderboardRow = {
   skillCount: number;
   arcadeCount: number;
   triviaCount: number;
+};
+
+// Helper function to get milestone style based on value
+const getMilestoneStyle = (milestone: string) => {
+  if (milestone === "ULTIMATE") return styles.ultimateMilestone;
+  if (milestone === "3") return styles.milestone3;
+  if (milestone === "2") return styles.milestone2;
+  if (milestone === "1") return styles.milestone1;
+  return styles.milestoneNA;
 };
 
 // The PDF Document Component
@@ -117,14 +160,32 @@ export const LeaderboardPDF = ({ data }: { data: LeaderboardRow[] }) => (
               <Text style={[styles.bodyCell, styles.pilotCell]}>
                 {row.nama.toUpperCase()}
               </Text>
-              <Text style={styles.bodyCell}>
+              <Text style={{
+                ...styles.bodyCell,
+                ...getMilestoneStyle(row.milestone)
+              }}>
                 {row.milestone === "-" ? "N/A" : row.milestone}
               </Text>
-              <Text style={styles.bodyCell}>{row.skillPoints.toFixed(1)}</Text>
-              <Text style={styles.bodyCell}>{row.arcadeCount}</Text>
-              <Text style={styles.bodyCell}>{row.triviaCount}</Text>
-              <Text style={styles.bodyCell}>+{row.bonusPoints}</Text>
-              <Text style={[styles.bodyCell, styles.scoreCell]}>
+              <Text style={{
+                ...styles.bodyCell,
+                ...styles.skillCell
+              }}>{row.skillPoints.toFixed(1)}</Text>
+              <Text style={{
+                ...styles.bodyCell,
+                ...styles.arcadeCell
+              }}>{row.arcadeCount}</Text>
+              <Text style={{
+                ...styles.bodyCell,
+                ...styles.triviaCell
+              }}>{row.triviaCount}</Text>
+              <Text style={{
+                ...styles.bodyCell,
+                ...styles.bonusCell
+              }}>+{row.bonusPoints}</Text>
+              <Text style={{
+                ...styles.bodyCell,
+                ...styles.scoreCell
+              }}>
                 {row.totalPoints.toFixed(1)}
               </Text>
             </View>
