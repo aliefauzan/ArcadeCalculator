@@ -1,4 +1,5 @@
 # 🎮 Arcade Team Calculator
+(https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
 ### Screenshots
 
 ![Arcade Calculator Demo](./image.png)
@@ -994,7 +995,6 @@ SOFTWARE.
 
 ## 🔗 Links
 
-- **Live Demo**: [Arcade Calculator](https://your-domain.com) *(Update with your actual domain)*
 - **Repository**: [GitHub](https://github.com/aliefauzan/ArcadeCalculator)
 - **Issues**: [GitHub Issues](https://github.com/aliefauzan/ArcadeCalculator/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/aliefauzan/ArcadeCalculator/discussions)
@@ -1005,9 +1005,6 @@ SOFTWARE.
 **Alief Fauzan**
 - 🌐 **LinkedIn**: [@alief-fauzan1](https://www.linkedin.com/in/alief-fauzan1/)
 - 🐙 **GitHub**: [@aliefauzan](https://github.com/aliefauzan)
-- 💼 **Portfolio**: *Add your portfolio link*
-- 📧 **Email**: *Add your contact email*
-
 ---
 
 <div align="center">
