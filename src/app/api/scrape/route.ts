@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(scrapedData);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to scrape the profile' }, { status: 500 });
   }
 }
