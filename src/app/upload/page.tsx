@@ -97,6 +97,7 @@ export default function UploadPage() {
     arcadePoints: number;
     triviaPoints: number;
     bonusPoints: number;
+    basePoints: number;
     totalPoints: number;
     milestone: string;
     skillCount: number;
@@ -219,6 +220,7 @@ export default function UploadPage() {
             arcadePoints: row.arcadeCount,
             triviaPoints: row.triviaCount,
             bonusPoints: row.bonusPoints,
+            basePoints: row.basePoints,
             totalPoints: row.totalPoints,
             milestone: milestoneNum,
             skillCount: row.skillCount,
@@ -530,14 +532,22 @@ export default function UploadPage() {
                           </tr>
                         ))}
                       </tbody>
-                      {/* Summary row for total score */}
+                      {/* Summary rows for total before bonus and total score */}
                       {leaderboard.length > 0 && (
                         <tfoot>
-                          <tr className="border-t-2 border-yellow-400 bg-black/80">
-                            <td
-                              colSpan={7}
-                              className="p-3 text-right font-bold text-yellow-300"
-                            >
+                          <tr className="border-t-2 border-blue-400 bg-black/80">
+                            <td className="p-3 text-right font-bold text-blue-300" colSpan={7}>
+                              TOTAL BEFORE BONUS
+                            </td>
+                            <td className="p-3 text-center text-lg font-bold text-blue-400">
+                              {leaderboard.reduce(
+                                (sum, row) => sum + Math.round(row.basePoints),
+                                0
+                              )}
+                            </td>
+                          </tr>
+                          <tr className="border-t border-yellow-400 bg-black/80">
+                            <td className="p-3 text-right font-bold text-yellow-300" colSpan={7}>
                               TOTAL SCORE
                             </td>
                             <td className="p-3 text-center text-lg font-bold text-yellow-400">

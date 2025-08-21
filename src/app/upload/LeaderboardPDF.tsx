@@ -106,6 +106,9 @@ const styles = StyleSheet.create({
   bonusCell: {
     color: "#22c55e", // Green for bonus points
   },
+  baseCell: {
+    color: "#3b82f6", // Blue for base points
+  },
 });
 
 // Define the type for a single row of leaderboard data.
@@ -115,6 +118,7 @@ type LeaderboardRow = {
   arcadePoints: number;
   triviaPoints: number;
   bonusPoints: number;
+  basePoints: number;
   totalPoints: number;
   milestone: string;
   skillCount: number;
@@ -190,6 +194,20 @@ export const LeaderboardPDF = ({ data }: { data: LeaderboardRow[] }) => (
               </Text>
             </View>
           ))}
+          {/* Total Before Bonus row */}
+          <View style={[styles.tableRow, { borderTopWidth: 2, borderTopColor: '#3b82f6', borderBottomWidth: 0, backgroundColor: '#000000' }]}>
+            <Text style={[styles.bodyCell, { textAlign: 'right', fontWeight: 'bold', color: '#3b82f6', flex: 6 }]}>TOTAL BEFORE BONUS</Text>
+            <Text style={[styles.bodyCell, { textAlign: 'center', fontWeight: 'bold', color: '#3b82f6', flex: 1 }]}>
+              {data.reduce((sum, row) => sum + row.basePoints, 0).toFixed(1)}
+            </Text>
+          </View>
+          {/* Total Score row */}
+          <View style={[styles.tableRow, { borderTopWidth: 0, borderBottomWidth: 0, backgroundColor: '#000000' }]}>
+            <Text style={[styles.bodyCell, { textAlign: 'right', fontWeight: 'bold', color: '#fbbf24', flex: 6 }]}>TOTAL SCORE</Text>
+            <Text style={[styles.bodyCell, { textAlign: 'center', fontWeight: 'bold', color: '#fbbf24', flex: 1 }]}>
+              {data.reduce((sum, row) => sum + row.totalPoints, 0).toFixed(1)}
+            </Text>
+          </View>
         </View>
         {/* Author credit and LinkedIn logo/button */}
         <View

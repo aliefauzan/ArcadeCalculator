@@ -12,6 +12,7 @@ interface CsvRow {
 // Simple in-memory cache
 interface LeaderboardRow {
   nama: string;
+  basePoints: number;
   totalPoints: number;
   milestone: string;
   skillCount: number;
@@ -246,7 +247,7 @@ export async function POST(request: Request) {
         }
         
         const totalPoints = basePoints + bonusPoints;
-        return { nama, totalPoints, milestone: milestoneName || "-", skillCount: skillBadgeCount, arcadeCount, triviaCount, bonusPoints };
+        return { nama, basePoints, totalPoints, milestone: milestoneName || "-", skillCount: skillBadgeCount, arcadeCount, triviaCount, bonusPoints };
       });
 
       const batchResults = await Promise.all(batchPromises);
