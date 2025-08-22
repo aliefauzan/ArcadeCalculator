@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Bot analysis allowed every 6 hours only
+# Rate limiting enforced via middleware
+Crawl-delay: 21600
+
+# Allow common pages for analysis
+Allow: /upload
+Allow: /_next/static/
+
+# Disallow API endpoints from crawling
+Disallow: /api/
+
+# Note: Actual enforcement is 6 hours via server middleware
+# Sitemap location (optional)
+# Sitemap: https://arcade-calculator-280204705798.asia-southeast2.run.app/sitemap.xml
