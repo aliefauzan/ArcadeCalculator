@@ -234,7 +234,7 @@ export async function POST(request: Request) {
       const minutesRemaining = Math.ceil((cachedEntry.expiresAt - Date.now()) / (60 * 1000));
       console.log(`📋 Cache HIT: Returning cached data (expires in ${minutesRemaining} minutes)`);
       return NextResponse.json({ 
-        cacheStatus: 'cached content', 
+        cacheStatus: 'HIT', 
         leaderboard: cachedEntry.data,
         cacheExpiresIn: minutesRemaining + ' minutes'
       });
@@ -307,7 +307,7 @@ export async function POST(request: Request) {
     
     // NOTE: Frontend should use leaderboardData.leaderboard.map(...) instead of leaderboardData.map(...)
     return NextResponse.json({ 
-      cacheStatus: 'fresh content', 
+      cacheStatus: 'MISS', 
       leaderboard: finalLeaderboardData,
       cacheExpiresIn: (CACHE_DURATION_MS / (60 * 1000)) + ' minutes'
     });

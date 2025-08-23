@@ -29,6 +29,27 @@ interface CsvRow {
   "Nama-nama Game Trivia yang Diselesaikan": string;
 }
 
+interface LeaderboardRow {
+  nama: string;
+  skillPoints: number;
+  arcadePoints: number;
+  triviaPoints: number;
+  bonusPoints: number;
+  basePoints: number;
+  totalPoints: number;
+  milestone: string;
+  profileUrl: string;
+  skillCount: number;
+  arcadeCount: number;
+  triviaCount: number;
+}
+
+interface ApiResponse {
+  leaderboard: LeaderboardRow[];
+  cacheStatus?: string;
+  cacheExpiresIn?: string;
+}
+
 // A component for a pixelated SVG moon
 const PixelMoon = () => (
   <svg
@@ -106,6 +127,7 @@ export default function UploadPage() {
   };
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fileCacheStatus, setFileCacheStatus] = useState<Record<string, {status: string, expiresIn: string}>>({});
   const [stars, setStars] = useState<
     {
       id: number;
@@ -161,6 +183,17 @@ export default function UploadPage() {
       .then(async (allFiles) => {
         setCsvFiles(allFiles);
         setSelectedFiles(allFiles.map((_, idx) => idx)); // Select all by default
+        
+        // Set initial cache status for uploaded files
+        const initialCacheStatus: Record<string, {status: string, expiresIn: string}> = {};
+        allFiles.forEach((file) => {
+          initialCacheStatus[file.name] = {
+            status: 'PROCESSING',
+            expiresIn: ''
+          };
+        });
+        setFileCacheStatus(initialCacheStatus);
+        
         await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
         updateLeaderboard(
           allFiles,
@@ -184,7 +217,7 @@ export default function UploadPage() {
     // Use the combined rows directly
     const csvText = Papa.unparse(combinedRows);
 
-    async function fetchLeaderboard(retries = 2): Promise<any[] | null> {
+    async function fetchLeaderboard(retries = 2): Promise<ApiResponse | null> {
       for (let attempt = 0; attempt <= retries; attempt++) {
         try {
           const res = await fetch("/api/process-leaderboard", {
@@ -204,9 +237,22 @@ export default function UploadPage() {
     }
 
     const leaderboardData = await fetchLeaderboard(2);
+    
+    // Update cache status for the current files
+    if (leaderboardData?.cacheStatus && leaderboardData?.cacheExpiresIn) {
+      const newCacheStatus: Record<string, {status: string, expiresIn: string}> = {};
+      csvFiles.forEach((file) => {
+        newCacheStatus[file.name] = {
+          status: leaderboardData.cacheStatus || '',
+          expiresIn: leaderboardData.cacheExpiresIn || ''
+        };
+      });
+      setFileCacheStatus(newCacheStatus);
+    }
+    
     if (leaderboardData && leaderboardData.leaderboard) {
       setLeaderboard(
-        leaderboardData.leaderboard.map((row: any) => {
+        leaderboardData.leaderboard.map((row: LeaderboardRow) => {
           let milestoneNum = "-";
           if (row.milestone === "ULTIMATE MASTER") milestoneNum = "ULTIMATE";
           else if (row.milestone === "GALAXY COMMANDER") milestoneNum = "3";
@@ -373,15 +419,39 @@ export default function UploadPage() {
                   {csvFiles.map((file, idx) => (
                     <label
                       key={file.name}
-                      className="flex items-center gap-2 text-white"
+                      className="flex items-center justify-between gap-2 text-white"
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedFiles.includes(idx)}
-                        onChange={() => handleCheckboxChange(idx)}
-                        className="accent-yellow-400 w-4 h-4"
-                      />
-                      <span>{file.name}</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedFiles.includes(idx)}
+                          onChange={() => handleCheckboxChange(idx)}
+                          className="accent-yellow-400 w-4 h-4"
+                        />
+                        <span>{file.name}</span>
+                      </div>
+                      
+                      {/* Cache Status Indicator for each file */}
+                      {fileCacheStatus[file.name] && (
+                        <div className="flex items-center gap-2 bg-gray-800/60 rounded px-3 py-1">
+                          <span className="text-xs font-pixel text-gray-300">Cache Status:</span>
+                          <div className={`w-2 h-2 rounded-full ${
+                            fileCacheStatus[file.name].status === 'HIT' ? 'bg-green-400' : 
+                            fileCacheStatus[file.name].status === 'PROCESSING' ? 'bg-yellow-400 animate-pulse' : 
+                            'bg-blue-400'
+                          }`}></div>
+                          <span className="text-xs font-pixel">
+                            {fileCacheStatus[file.name].status === 'HIT' ? 'CACHED' : 
+                             fileCacheStatus[file.name].status === 'PROCESSING' ? 'PROCESSING...' :
+                             'FRESH'}
+                          </span>
+                          {fileCacheStatus[file.name].expiresIn && (
+                            <span className="text-xs text-gray-400">
+                              ({fileCacheStatus[file.name].expiresIn})
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </label>
                   ))}
                 </div>
