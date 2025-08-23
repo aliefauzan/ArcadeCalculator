@@ -9,7 +9,7 @@ interface CsvRow {
   "URL Profil Google Cloud Skills Boost": string;
 }
 
-// Simple in-memory cache
+// Simple in-memory cache with expiration
 interface LeaderboardRow {
   nama: string;
   basePoints: number;
@@ -20,10 +20,35 @@ interface LeaderboardRow {
   triviaCount: number;
   bonusPoints: number;
 }
-const leaderboardCache: Record<string, LeaderboardRow[]> = {};
+
+interface CacheEntry {
+  data: LeaderboardRow[];
+  timestamp: number;
+  expiresAt: number;
+}
+
+const leaderboardCache: Record<string, CacheEntry> = {};
+
+// Cache settings
+const CACHE_DURATION_MS = 45 * 60 * 1000; // 45 minutes cache duration
 
 function getCsvHash(csvText: string): string {
   return crypto.createHash('sha256').update(csvText).digest('hex');
+}
+
+function isCacheValid(cacheEntry: CacheEntry): boolean {
+  const now = Date.now();
+  return now < cacheEntry.expiresAt;
+}
+
+function cleanExpiredCache(): void {
+  const now = Date.now();
+  Object.keys(leaderboardCache).forEach(key => {
+    if (!isCacheValid(leaderboardCache[key])) {
+      console.log(`🗑️ Cleaning expired cache entry: ${key.substring(0, 8)}...`);
+      delete leaderboardCache[key];
+    }
+  });
 }
 
 async function scrapeProfile(url: string) {
@@ -199,8 +224,20 @@ export async function POST(request: Request) {
 
     // Use hash of CSV content as cache key
     const csvHash = getCsvHash(csvText);
-    if (leaderboardCache[csvHash]) {
-      return NextResponse.json({ cacheStatus: 'caching content', leaderboard: leaderboardCache[csvHash] });
+    
+    // Clean expired cache entries
+    cleanExpiredCache();
+    
+    // Check if we have valid cached data
+    const cachedEntry = leaderboardCache[csvHash];
+    if (cachedEntry && isCacheValid(cachedEntry)) {
+      const minutesRemaining = Math.ceil((cachedEntry.expiresAt - Date.now()) / (60 * 1000));
+      console.log(`📋 Cache HIT: Returning cached data (expires in ${minutesRemaining} minutes)`);
+      return NextResponse.json({ 
+        cacheStatus: 'cached content', 
+        leaderboard: cachedEntry.data,
+        cacheExpiresIn: minutesRemaining + ' minutes'
+      });
     }
 
     const parsedCsv = Papa.parse<CsvRow>(csvText, { header: true, skipEmptyLines: true });
@@ -257,9 +294,23 @@ export async function POST(request: Request) {
     }
 
     finalLeaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
-    leaderboardCache[csvHash] = finalLeaderboardData;
+    
+    // Store in cache with expiration
+    const now = Date.now();
+    leaderboardCache[csvHash] = {
+      data: finalLeaderboardData,
+      timestamp: now,
+      expiresAt: now + CACHE_DURATION_MS
+    };
+    
+    console.log(`💾 Cache STORED: Data cached for ${CACHE_DURATION_MS / (60 * 1000)} minutes`);
+    
     // NOTE: Frontend should use leaderboardData.leaderboard.map(...) instead of leaderboardData.map(...)
-    return NextResponse.json({ cacheStatus: 'fresh content', leaderboard: finalLeaderboardData });
+    return NextResponse.json({ 
+      cacheStatus: 'fresh content', 
+      leaderboard: finalLeaderboardData,
+      cacheExpiresIn: (CACHE_DURATION_MS / (60 * 1000)) + ' minutes'
+    });
 
   } catch (error) {
     console.error('Error processing leaderboard:', error);
