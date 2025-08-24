@@ -1,5 +1,5 @@
 # 🎮 Arcade Team Calculator
-(https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
+#(https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
 ### Screenshots
 
 ![Arcade Calculator Demo](./image.png)
@@ -58,7 +58,23 @@ A powerful Next.js web application designed to process Google Cloud Skills Boost
 - **Real-time Profile Scraping**: Automated extraction of achievement data from Google Cloud Skills Boost profiles
 - **Dynamic Leaderboard Generation**: Real-time calculation and ranking with live updates
 - **Smart Caching System**: Efficient caching to minimize redundant API calls and improve performance
-- **Data Validation**: Comprehensive validation and error handling for CSV data integrity
+
+### Cache Status Indicator
+
+Each uploaded CSV file now shows a per-file cache status indicator in the upload UI so users can immediately see whether the data is being processed, freshly generated, or served from cache:
+
+- PROCESSING... (yellow, pulsing) — shown immediately after upload while the server processes the file.
+- FRESH (blue) — data was freshly processed (not from cache).
+- CACHED (green) — data was returned from the cache for faster results.
+
+The indicator also shows the cache expiration time (for example: `(42 minutes)`).
+
+API responses include the following fields which the frontend uses to populate the indicator:
+
+- `cacheStatus`: `"HIT"` or `"MISS"` (or transitional `"PROCESSING"` state used on the frontend)
+- `cacheExpiresIn`: human-readable time until cache expiration (e.g., `"45 minutes"`)
+
+This provides clear, per-file feedback so users understand caching behavior at a glance.
 
 ### Advanced Scoring Features
 - **Intelligent Point Calculation**: Automated scoring based on multiple achievement types:
@@ -1005,14 +1021,3 @@ SOFTWARE.
 **Alief Fauzan**
 - 🌐 **LinkedIn**: [@alief-fauzan1](https://www.linkedin.com/in/alief-fauzan1/)
 - 🐙 **GitHub**: [@aliefauzan](https://github.com/aliefauzan)
----
-
-<div align="center">
-
-**Made with ❤️ for the Google Cloud Skills Boost community**
-
-🎮 **Ready to calculate some arcade scores? Let's go!** 🚀
-
-*Start building amazing leaderboards with Arcade Calculator!*
-
-</div>
