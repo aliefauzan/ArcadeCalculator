@@ -85,7 +85,7 @@ async function scrapeProfile(url: string) {
       const completionRegex = /completion|completed|fundamentals|journey|preparing/i;
       
       // Define the minimum date for valid badges
-      const minDate = new Date('2025-07-14');
+      const minDate = new Date('2025-07-15');
 
       badges.each((i, el) => {
         const badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
