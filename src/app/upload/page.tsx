@@ -91,6 +91,68 @@ const PixelSpaceship = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// A component for a pixelated SVG rocket pointing right
+const PixelRocket = ({ className }: { className?: string }) => (
+  <svg
+    width="24"
+    height="16"
+    viewBox="0 0 24 16"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Rocket body pointing right */}
+    <rect x="4" y="6" width="10" height="4" fill="#F5F5F5" />
+    <rect x="6" y="5" width="8" height="6" fill="#FFFFFF" />
+    {/* Rocket nose */}
+    <rect x="14" y="6" width="3" height="4" fill="#E0E0E0" />
+    <rect x="17" y="7" width="2" height="2" fill="#E0E0E0" />
+    <rect x="19" y="7.5" width="1" height="1" fill="#E0E0E0" />
+    {/* Wings */}
+    <rect x="10" y="2" width="4" height="3" fill="#D0D0D0" />
+    <rect x="10" y="11" width="4" height="3" fill="#D0D0D0" />
+    {/* Enhanced flame with more visibility */}
+    <rect x="0" y="6" width="4" height="4" fill="#FF4500" />
+    <rect x="0" y="5" width="2" height="2" fill="#FF6B35" />
+    <rect x="0" y="9" width="2" height="2" fill="#FF6B35" />
+    <rect x="2" y="7" width="2" height="2" fill="#FFD700" />
+    {/* Window */}
+    <rect x="11" y="7" width="2" height="2" fill="#87CEEB" />
+    {/* Extra detail for visibility */}
+    <rect x="8" y="7" width="1" height="2" fill="#FFD60A" />
+  </svg>
+);
+
+// A component for the emoji-style rocket that matches the theme
+const ThemeRocket = ({ className }: { className?: string }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Rocket body pointing right */}
+    <rect x="2" y="6" width="8" height="4" fill="#F5F5F5" />
+    <rect x="4" y="5" width="6" height="6" fill="#FFFFFF" />
+    {/* Rocket nose */}
+    <rect x="10" y="6" width="2" height="4" fill="#E0E0E0" />
+    <rect x="12" y="7" width="2" height="2" fill="#E0E0E0" />
+    <rect x="14" y="7.5" width="1" height="1" fill="#E0E0E0" />
+    {/* Wings */}
+    <rect x="7" y="3" width="3" height="2" fill="#D0D0D0" />
+    <rect x="7" y="11" width="3" height="2" fill="#D0D0D0" />
+    {/* Flame */}
+    <rect x="0" y="6" width="2" height="4" fill="#FF4500" />
+    <rect x="0" y="5" width="1" height="2" fill="#FF6B35" />
+    <rect x="0" y="9" width="1" height="2" fill="#FF6B35" />
+    <rect x="1" y="7" width="1" height="2" fill="#FFD700" />
+    {/* Window */}
+    <rect x="7" y="7" width="2" height="2" fill="#87CEEB" />
+  </svg>
+);
+
 // This wrapper component ensures its children are only rendered on the client side.
 const ClientOnly = ({ children }: { children: React.ReactNode }) => {
   const [hasMounted, setHasMounted] = useState(false);
@@ -128,6 +190,8 @@ export default function UploadPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [fileCacheStatus, setFileCacheStatus] = useState<Record<string, {status: string, expiresIn: string}>>({});
+  const [progress, setProgress] = useState(0); // 0-100
+  const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple simultaneous calls
   const [stars, setStars] = useState<
     {
       id: number;
@@ -137,6 +201,93 @@ export default function UploadPage() {
       size: string;
     }[]
   >([]);
+
+  // Constants
+  const BATCH_SIZE = 10; // Same as in the API
+  const MAX_FILES = 2;
+
+  // Helper functions
+  const updateProgress = (value: number) => {
+    setProgress(Math.min(value, 100));
+  };
+
+  const resetLoadingState = () => {
+    setLoading(false);
+    setProgress(0);
+    setIsProcessing(false);
+  };
+
+  const setInitialCacheStatus = (files: { name: string; data: CsvRow[] }[]) => {
+    const initialCacheStatus: Record<string, {status: string, expiresIn: string}> = {};
+    files.forEach((file) => {
+      initialCacheStatus[file.name] = {
+        status: 'PROCESSING',
+        expiresIn: ''
+      };
+    });
+    setFileCacheStatus(initialCacheStatus);
+  };
+
+  const updateCacheStatus = (cacheStatus?: string, cacheExpiresIn?: string) => {
+    if (cacheStatus && cacheExpiresIn) {
+      const newCacheStatus: Record<string, {status: string, expiresIn: string}> = {};
+      csvFiles.forEach((file) => {
+        newCacheStatus[file.name] = {
+          status: cacheStatus,
+          expiresIn: cacheExpiresIn
+        };
+      });
+      setFileCacheStatus(newCacheStatus);
+    }
+  };
+
+  const transformLeaderboardData = (data: LeaderboardRow[]): LeaderboardRow[] => {
+    return data.map((row: LeaderboardRow) => {
+      let milestoneNum = "-";
+      if (row.milestone === "ULTIMATE MASTER") milestoneNum = "ULTIMATE";
+      else if (row.milestone === "GALAXY COMMANDER") milestoneNum = "3";
+      else if (row.milestone === "SPACE PILOT") milestoneNum = "2";
+      else if (row.milestone === "CADET") milestoneNum = "1";
+      else if (["1", "2", "3", "4"].includes(row.milestone))
+        milestoneNum = row.milestone;
+      return {
+        nama: row.nama,
+        skillPoints: row.skillCount * 0.5,
+        arcadePoints: row.arcadeCount,
+        triviaPoints: row.triviaCount,
+        bonusPoints: row.bonusPoints,
+        basePoints: row.basePoints,
+        totalPoints: row.totalPoints,
+        milestone: milestoneNum,
+        skillCount: row.skillCount,
+        arcadeCount: row.arcadeCount,
+        triviaCount: row.triviaCount,
+      };
+    });
+  };
+
+  const fetchLeaderboardData = async (csvText: string): Promise<ApiResponse | null> => {
+    const maxRetries = 2;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch("/api/process-leaderboard", {
+          method: "POST",
+          headers: { "Content-Type": "text/csv" },
+          body: csvText,
+        });
+        
+        if (!res.ok) throw new Error("Failed to process leaderboard");
+        
+        const leaderboardData = await res.json();
+        return leaderboardData;
+      } catch {
+        if (attempt === maxRetries) return null;
+        await new Promise((resolve) => setTimeout(resolve, 1200)); // Wait before retry
+      }
+    }
+    return null;
+  };
 
   useEffect(() => {
     const generatedStars = Array.from({ length: 200 }, (_, i) => ({
@@ -152,14 +303,15 @@ export default function UploadPage() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    if (files.length > 2) {
-      setError("You can only upload up to 2 CSV files.");
+    if (files.length > MAX_FILES) {
+      setError(`You can only upload up to ${MAX_FILES} CSV files.`);
       return;
     }
 
     setLoading(true);
     setError(null);
     setLeaderboard([]);
+    setProgress(0);
 
     const parsePromises = Array.from(files).map((file) => {
       return new Promise<{ name: string; data: CsvRow[] }>(
@@ -183,18 +335,9 @@ export default function UploadPage() {
       .then(async (allFiles) => {
         setCsvFiles(allFiles);
         setSelectedFiles(allFiles.map((_, idx) => idx)); // Select all by default
+        setInitialCacheStatus(allFiles);
         
-        // Set initial cache status for uploaded files
-        const initialCacheStatus: Record<string, {status: string, expiresIn: string}> = {};
-        allFiles.forEach((file) => {
-          initialCacheStatus[file.name] = {
-            status: 'PROCESSING',
-            expiresIn: ''
-          };
-        });
-        setFileCacheStatus(initialCacheStatus);
-        
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+        // Remove the delay and call updateLeaderboard immediately
         updateLeaderboard(
           allFiles,
           allFiles.map((_, idx) => idx)
@@ -202,7 +345,7 @@ export default function UploadPage() {
       })
       .catch((err) => {
         setError(typeof err === "string" ? err : "CSV parsing error");
-        setLoading(false);
+        resetLoadingState();
       });
   };
 
@@ -210,82 +353,85 @@ export default function UploadPage() {
     files: { name: string; data: CsvRow[] }[],
     selected: number[]
   ) => {
+    // Prevent multiple simultaneous processing
+    if (isProcessing) {
+      return;
+    }
+    
+    // Don't process if no files selected
+    if (selected.length === 0 || files.length === 0) {
+      return;
+    }
+    
     // The backend now handles all date filtering, so we can combine rows directly.
     const combinedRows = selected.flatMap(idx => files[idx]?.data || []);
     
+    setIsProcessing(true);
     setLoading(true);
+    setProgress(0); // Reset progress only at the start
+    
+    // Calculate total participants and expected batches
+    const totalParticipants = combinedRows.length;
+    const totalBatches = Math.ceil(totalParticipants / BATCH_SIZE);
+    
     // Use the combined rows directly
     const csvText = Papa.unparse(combinedRows);
 
-    async function fetchLeaderboard(retries = 2): Promise<ApiResponse | null> {
-      for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-          const res = await fetch("/api/process-leaderboard", {
-            method: "POST",
-            headers: { "Content-Type": "text/csv" },
-            body: csvText,
-          });
-          if (!res.ok) throw new Error("Failed to process leaderboard");
-          const leaderboardData = await res.json();
-          return leaderboardData;
-        } catch {
-          if (attempt === retries) return null;
-          await new Promise((resolve) => setTimeout(resolve, 1200)); // Wait before retry
+    try {
+      // Start with initial progress
+      updateProgress(10);
+      
+      // Create a smooth progress animation that estimates based on typical API time
+      const estimatedTotalTime = totalBatches * 3000; // 3 seconds per batch estimate
+      const updateInterval = 500; // Update every 500ms
+      const progressIncrement = 80 / (estimatedTotalTime / updateInterval); // 80% for processing
+      
+      let currentProgress = 10;
+      const progressTimer = setInterval(() => {
+        currentProgress += progressIncrement;
+        if (currentProgress < 90) {
+          updateProgress(Math.round(currentProgress));
         }
+      }, updateInterval);
+      
+      const leaderboardData = await fetchLeaderboardData(csvText);
+      
+      // Clear the timer when API completes
+      clearInterval(progressTimer);
+      
+      // Complete the progress
+      updateProgress(100);
+      
+      // Update cache status for the current files
+      updateCacheStatus(leaderboardData?.cacheStatus, leaderboardData?.cacheExpiresIn);
+      
+      if (leaderboardData && leaderboardData.leaderboard) {
+        const transformedData = transformLeaderboardData(leaderboardData.leaderboard);
+        setLeaderboard(transformedData);
+        setError(null);
+      } else {
+        setError(
+          "Failed to process leaderboard after several attempts. Please try again."
+        );
+        setLeaderboard([]);
       }
-      return null;
-    }
-
-    const leaderboardData = await fetchLeaderboard(2);
-    
-    // Update cache status for the current files
-    if (leaderboardData?.cacheStatus && leaderboardData?.cacheExpiresIn) {
-      const newCacheStatus: Record<string, {status: string, expiresIn: string}> = {};
-      csvFiles.forEach((file) => {
-        newCacheStatus[file.name] = {
-          status: leaderboardData.cacheStatus || '',
-          expiresIn: leaderboardData.cacheExpiresIn || ''
-        };
-      });
-      setFileCacheStatus(newCacheStatus);
-    }
-    
-    if (leaderboardData && leaderboardData.leaderboard) {
-      setLeaderboard(
-        leaderboardData.leaderboard.map((row: LeaderboardRow) => {
-          let milestoneNum = "-";
-          if (row.milestone === "ULTIMATE MASTER") milestoneNum = "ULTIMATE";
-          else if (row.milestone === "GALAXY COMMANDER") milestoneNum = "3";
-          else if (row.milestone === "SPACE PILOT") milestoneNum = "2";
-          else if (row.milestone === "CADET") milestoneNum = "1";
-          else if (["1", "2", "3", "4"].includes(row.milestone))
-            milestoneNum = row.milestone;
-          return {
-            nama: row.nama,
-            skillPoints: row.skillCount * 0.5,
-            arcadePoints: row.arcadeCount,
-            triviaPoints: row.triviaCount,
-            bonusPoints: row.bonusPoints,
-            basePoints: row.basePoints,
-            totalPoints: row.totalPoints,
-            milestone: milestoneNum,
-            skillCount: row.skillCount,
-            arcadeCount: row.arcadeCount,
-            triviaCount: row.triviaCount,
-          };
-        })
-      );
-      setError(null);
-    } else {
-      setError(
-        "Failed to process leaderboard after several attempts. Please try again."
-      );
+    } catch {
+      setError('An error occurred while processing the leaderboard');
       setLeaderboard([]);
     }
-    setLoading(false);
+    
+    // Small delay to show 100% completion before hiding
+    setTimeout(() => {
+      resetLoadingState();
+    }, 500);
   };
 
   const handleCheckboxChange = (idx: number) => {
+    // Don't allow changes while processing
+    if (isProcessing) {
+      return;
+    }
+    
     let updated = selectedFiles.includes(idx)
       ? selectedFiles.filter((i) => i !== idx)
       : [...selectedFiles, idx];
@@ -308,6 +454,15 @@ export default function UploadPage() {
     if (index === 1) return "🥈";
     if (index === 2) return "🥉";
     return "✨";
+  };
+
+  const getMilestoneStyle = (milestone: string) => {
+    if (milestone === "ULTIMATE")
+      return "bg-gradient-to-r from-pink-500 to-violet-600 text-white border border-pink-300";
+    if (milestone === "3") return "bg-yellow-400 text-black";
+    if (milestone === "2") return "bg-purple-500 text-white";
+    if (milestone === "1") return "bg-green-500 text-white";
+    return "bg-slate-700 text-slate-300";
   };
 
   return (
@@ -490,6 +645,40 @@ export default function UploadPage() {
                 <span className="text-lg animate-pulse font-pixel text-yellow-300 mt-4">
                   &gt; SCRAPING &amp; CALCULATING...
                 </span>
+                
+                {/* Progress bar with animated rocket */}
+                <div className="w-full max-w-2xl mt-4">
+                  <div className="h-6 bg-slate-800 rounded overflow-hidden relative border-2 border-slate-600">
+                    <div
+                      className="h-6 bg-gradient-to-r from-yellow-300 to-yellow-500 transition-all duration-500 ease-out"
+                      style={{ width: `${progress}%` }}
+                    />
+                    {/* Rocket that follows the progress */}
+                    {progress > 0 && (
+                      <div
+                        className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-500 ease-out"
+                        style={{ 
+                          left: `${Math.min(progress, 95)}%`,
+                          zIndex: 10
+                        }}
+                      >
+                        <PixelRocket className="drop-shadow-[2px_2px_4px_rgba(0,0,0,0.8)] filter brightness-110" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-center mt-3 relative">
+                    {/* Centered percentage with theme rocket */}
+                    {loading && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-pixel text-yellow-400 text-lg">
+                          {Math.round(progress)}%
+                        </span>
+                        <ThemeRocket className="animate-pulse" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
                 <style>{`
                   @keyframes star-flicker {
                     0%, 100% { opacity: 0.8; }
@@ -567,17 +756,7 @@ export default function UploadPage() {
                             </td>
                             <td className="p-3 text-center">
                               <span
-                                className={`px-2 py-1 text-xs font-bold ${
-                                  row.milestone === "ULTIMATE"
-                                    ? "bg-gradient-to-r from-pink-500 to-violet-600 text-white border border-pink-300"
-                                    : row.milestone === "3"
-                                    ? "bg-yellow-400 text-black"
-                                    : row.milestone === "2"
-                                    ? "bg-purple-500 text-white"
-                                    : row.milestone === "1"
-                                    ? "bg-green-500 text-white"
-                                    : "bg-slate-700 text-slate-300"
-                                }`}
+                                className={`px-2 py-1 text-xs font-bold ${getMilestoneStyle(row.milestone)}`}
                               >
                                 {row.milestone !== "-" ? row.milestone : "N/A"}
                               </span>
