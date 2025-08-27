@@ -91,11 +91,20 @@ This provides clear, per-file feedback so users understand caching behavior at a
 
 ### Visual & UX Features
 - **Retro Arcade Aesthetic**: Pixel-perfect 8-bit inspired design with custom animations
+- **🚀 Rocket-Themed Progress Bar**: Interactive animated progress indicator with flying rocket that follows batch processing in real-time
 - **Dynamic Backgrounds**: Animated starfield with floating pixel spaceships
 - **Custom Typography**: Press Start 2P pixel font for authentic retro gaming feel
 - **Color-coded Data**: Intuitive color system for different data types and achievements
 - **Interactive Elements**: Hover effects, loading animations, and smooth transitions
 - **Responsive Design**: Optimized for all screen sizes from mobile to desktop
+
+### Progress & Loading Experience
+- **🎯 Batch-Accurate Progress**: Progress bar synchronized with actual API batch processing (e.g., batch 2/10 = 20% progress)
+- **🚀 Animated Rocket Indicator**: Custom SVG rocket that travels along the progress bar, showing exact completion percentage
+- **⚡ Real-time Updates**: Smooth progress animation that updates every 500ms during data processing
+- **🎨 Pixel Art Components**: Custom PixelRocket and ThemeRocket SVG components with retro gaming aesthetics
+- **📊 Smart Progress Calculation**: Intelligent estimation based on participant count and batch size (10 participants per batch)
+- **✨ Smooth Transitions**: 500ms CSS transitions for seamless visual experience
 
 ### Export & Reporting
 - **Professional PDF Generation**: High-quality PDF reports with maintained color schemes
@@ -124,6 +133,7 @@ This provides clear, per-file feedback so users understand caching behavior at a
 ### Key Demo Highlights
 
 - **Smart Data Processing**: Automatic CSV parsing with error detection and validation
+- **🚀 Rocket Progress Animation**: Real-time progress bar with animated rocket that follows batch processing completion
 - **Live Leaderboard Updates**: Real-time ranking updates as data is processed
 - **Professional Presentation**: Clean, organized display of complex achievement data
 - **Export Functionality**: One-click PDF generation with full color preservation
