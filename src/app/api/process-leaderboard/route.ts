@@ -25,6 +25,13 @@ interface CacheEntry {
   data: LeaderboardRow[];
   timestamp: number;
   expiresAt: number;
+  totalStats?: {
+    totalAllBadges: number;
+    totalArcadeBadges: number;
+    totalTriviaBadges: number;
+    totalSkillBadges: number;
+    totalExtraSkillBadges: number;
+  };
 }
 
 const leaderboardCache: Record<string, CacheEntry> = {};
@@ -247,7 +254,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ 
         cacheStatus: 'HIT', 
         leaderboard: cachedEntry.data,
-        cacheExpiresIn: minutesRemaining + ' minutes'
+        cacheExpiresIn: minutesRemaining + ' minutes',
+        totalStats: cachedEntry.totalStats
       });
     }
 
@@ -263,6 +271,10 @@ export async function POST(request: Request) {
       const batchPromises = batch.map(async (participant) => {
         const { "Nama Peserta": nama, "URL Profil Google Cloud Skills Boost": url } = participant;
         const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount } = await scrapeProfile(url);
+
+        // Log badge counts for each participant before point calculation
+        //const totalBadges = skillBadgeCount + arcadeBadgeCount + triviaBadgeCount + extraSkillBadgeCount;
+        //console.log(`📊 ${nama} - Total badges: ${totalBadges} (${arcadeBadgeCount} arcade, ${triviaBadgeCount} trivia, ${skillBadgeCount} skill, ${extraSkillBadgeCount} extraskill)`);
 
         // Calculate points based on reference repository logic
         const arcadePoints = arcadeBadgeCount * 1.0;
@@ -304,14 +316,34 @@ export async function POST(request: Request) {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    // Calculate and log total badges across all participants
+    const totalArcadeBadges = finalLeaderboardData.reduce((sum, participant) => sum + participant.arcadeCount, 0);
+    const totalTriviaBadges = finalLeaderboardData.reduce((sum, participant) => sum + participant.triviaCount, 0);
+    const totalSkillBadges = finalLeaderboardData.reduce((sum, participant) => sum + participant.skillCount, 0);
+    const totalExtraSkillBadges = 0; // Note: extraskill is included in arcadeCount for display
+    const totalAllBadges = totalArcadeBadges + totalTriviaBadges + totalSkillBadges + totalExtraSkillBadges;
+    
+    //console.log(`🎯 TOTAL ALL PARTICIPANTS: ${totalAllBadges} badges (${totalArcadeBadges} arcade, ${totalTriviaBadges} trivia, ${totalSkillBadges} skill, ${totalExtraSkillBadges} extraskill)`);
+    //console.log(`🎯 TOTAL ALL PARTICIPANTS: ${totalAllBadges} badges combined`);
+
     finalLeaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
+    
+    // Prepare total stats for frontend
+    const totalStats = {
+      totalAllBadges,
+      totalArcadeBadges,
+      totalTriviaBadges,
+      totalSkillBadges,
+      totalExtraSkillBadges
+    };
     
     // Store in cache with expiration
     const now = Date.now();
     leaderboardCache[csvHash] = {
       data: finalLeaderboardData,
       timestamp: now,
-      expiresAt: now + CACHE_DURATION_MS
+      expiresAt: now + CACHE_DURATION_MS,
+      totalStats
     };
     
     console.log(`💾 Cache STORED: Data cached for ${CACHE_DURATION_MS / (60 * 1000)} minutes`);
@@ -320,7 +352,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       cacheStatus: 'MISS', 
       leaderboard: finalLeaderboardData,
-      cacheExpiresIn: (CACHE_DURATION_MS / (60 * 1000)) + ' minutes'
+      cacheExpiresIn: (CACHE_DURATION_MS / (60 * 1000)) + ' minutes',
+      totalStats
     });
 
   } catch (error) {

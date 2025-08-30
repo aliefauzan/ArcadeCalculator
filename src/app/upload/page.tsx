@@ -48,6 +48,13 @@ interface ApiResponse {
   leaderboard: LeaderboardRow[];
   cacheStatus?: string;
   cacheExpiresIn?: string;
+  totalStats?: {
+    totalAllBadges: number;
+    totalArcadeBadges: number;
+    totalTriviaBadges: number;
+    totalSkillBadges: number;
+    totalExtraSkillBadges: number;
+  };
 }
 
 // A component for a pixelated SVG moon
@@ -192,6 +199,13 @@ export default function UploadPage() {
   const [fileCacheStatus, setFileCacheStatus] = useState<Record<string, {status: string, expiresIn: string}>>({});
   const [progress, setProgress] = useState(0); // 0-100
   const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple simultaneous calls
+  const [totalStats, setTotalStats] = useState<{
+    totalAllBadges: number;
+    totalArcadeBadges: number;
+    totalTriviaBadges: number;
+    totalSkillBadges: number;
+    totalExtraSkillBadges: number;
+  } | null>(null);
   const [stars, setStars] = useState<
     {
       id: number;
@@ -408,16 +422,19 @@ export default function UploadPage() {
       if (leaderboardData && leaderboardData.leaderboard) {
         const transformedData = transformLeaderboardData(leaderboardData.leaderboard);
         setLeaderboard(transformedData);
+        setTotalStats(leaderboardData.totalStats || null);
         setError(null);
       } else {
         setError(
           "Failed to process leaderboard after several attempts. Please try again."
         );
         setLeaderboard([]);
+        setTotalStats(null);
       }
     } catch {
       setError('An error occurred while processing the leaderboard');
       setLeaderboard([]);
+      setTotalStats(null);
     }
     
     // Small delay to show 100% completion before hiding
@@ -704,11 +721,11 @@ export default function UploadPage() {
                   </ClientOnly>
                 </div>
 
-                <div className="border-2 border-slate-500 bg-black/50 overflow-hidden">
+                <div className="border-2 border-yellow-400 bg-black/70 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[1200px] text-xs">
                       <thead>
-                        <tr className="border-b-2 border-slate-500">
+                        <tr className="border-b-2 border-yellow-400">
                           <th className="p-3 text-left text-yellow-300 tracking-wider">
                             RANK
                           </th>
@@ -739,7 +756,7 @@ export default function UploadPage() {
                         {leaderboard.map((row, idx) => (
                           <tr
                             key={idx}
-                            className="border-b border-slate-700 hover:bg-slate-700/50"
+                            className="border-b border-yellow-400/30 hover:bg-yellow-400/10"
                           >
                             <td className="p-3 font-bold">
                               <div
@@ -784,18 +801,18 @@ export default function UploadPage() {
                       {/* Summary rows for total before bonus and total score */}
                       {leaderboard.length > 0 && (
                         <tfoot>
-                          <tr className="border-t-2 border-blue-400 bg-black/80">
-                            <td className="p-3 text-right font-bold text-blue-300" colSpan={7}>
+                          <tr className="border-t-2 border-yellow-400 bg-black/80">
+                            <td className="p-3 text-right font-bold text-yellow-300" colSpan={7}>
                               TOTAL BEFORE BONUS
                             </td>
-                            <td className="p-3 text-center text-lg font-bold text-blue-400">
+                            <td className="p-3 text-center text-lg font-bold text-yellow-400">
                               {leaderboard.reduce(
                                 (sum, row) => sum + Math.round(row.basePoints),
                                 0
                               )}
                             </td>
                           </tr>
-                          <tr className="border-t border-yellow-400 bg-black/80">
+                          <tr className="border-t border-yellow-400/40 bg-black/80">
                             <td className="p-3 text-right font-bold text-yellow-300" colSpan={7}>
                               TOTAL SCORE
                             </td>
@@ -809,6 +826,299 @@ export default function UploadPage() {
                         </tfoot>
                       )}
                     </table>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Total Statistics Section */}
+            {totalStats && (
+              <section className="w-full mt-8">
+                <div className="border border-yellow-400/40 bg-black/70 p-6">
+                  <h3 className="text-xl font-bold text-yellow-400 mb-4 text-center">
+                    &gt; TOTAL BADGE STATISTICS &lt;
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-cyan-900/50 border-2 border-cyan-400 p-4 text-center">
+                      <div className="text-2xl font-bold text-cyan-400 mb-2">
+                        {totalStats.totalSkillBadges}
+                      </div>
+                      <div className="text-sm text-cyan-300">
+                        SKILL BADGES
+                      </div>
+                    </div>
+                    <div className="bg-pink-900/50 border-2 border-pink-400 p-4 text-center">
+                      <div className="text-2xl font-bold text-pink-400 mb-2">
+                        {totalStats.totalArcadeBadges}
+                      </div>
+                      <div className="text-sm text-pink-300">
+                        ARCADE BADGES
+                      </div>
+                    </div>
+                    <div className="bg-green-900/50 border-2 border-green-400 p-4 text-center">
+                      <div className="text-2xl font-bold text-green-400 mb-2">
+                        {totalStats.totalTriviaBadges}
+                      </div>
+                      <div className="text-sm text-green-300">
+                        TRIVIA BADGES
+                      </div>
+                    </div>
+                    <div className="bg-slate-800 border-2 border-slate-600 p-4 text-center">
+                      <div className="text-2xl font-bold text-white mb-2">
+                        {totalStats.totalAllBadges}
+                      </div>
+                      <div className="text-sm text-slate-300">
+                        TOTAL BADGES
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Milestone Progress Section */}
+            {totalStats && (
+              <section className="w-full mt-8">
+                <div className="border border-yellow-400/40 bg-black/70 p-6">
+                  <h3 className="text-xl font-bold text-yellow-400 mb-6 text-center">
+                    &gt; MILESTONE PROGRESS &lt;
+                  </h3>
+                  <div className="space-y-4">
+                    {/* Milestone 1 */}
+                    <div className="border border-yellow-400/40 bg-black/60 p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-base font-medium text-yellow-300">
+                          Milestone #1 - 350 Badges
+                        </h4>
+                        <div className="text-sm text-yellow-300 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                          {Math.min(Math.round(((Math.min((totalStats.totalArcadeBadges / 100) * 100, 100) + Math.min((totalStats.totalTriviaBadges / 100) * 100, 100) + Math.min((totalStats.totalSkillBadges / 150) * 100, 100)) / 3)), 100)}%
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-300 mb-3">
+                        Target: 100 arcade + 100 trivia + 150 skill badges
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Arcade Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalArcadeBadges}/100 ({Math.min(Math.round((totalStats.totalArcadeBadges / 100) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalArcadeBadges / 100) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Trivia Games</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalTriviaBadges}/100 ({Math.min(Math.round((totalStats.totalTriviaBadges / 100) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalTriviaBadges / 100) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Skill Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalSkillBadges}/150 ({Math.min(Math.round((totalStats.totalSkillBadges / 150) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalSkillBadges / 150) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Milestone 2 */}
+                    <div className="border border-yellow-400/40 bg-black/60 p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-base font-medium text-yellow-300">
+                          Milestone #2 - 600 Badges
+                        </h4>
+                        <div className="text-sm text-yellow-300 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                          {Math.min(Math.round(((Math.min((totalStats.totalArcadeBadges / 150) * 100, 100) + Math.min((totalStats.totalTriviaBadges / 150) * 100, 100) + Math.min((totalStats.totalSkillBadges / 300) * 100, 100)) / 3)), 100)}%
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-300 mb-3">
+                        Target: 150 arcade + 150 trivia + 300 skill badges
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Arcade Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalArcadeBadges}/150 ({Math.min(Math.round((totalStats.totalArcadeBadges / 150) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalArcadeBadges / 150) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Trivia Games</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalTriviaBadges}/150 ({Math.min(Math.round((totalStats.totalTriviaBadges / 150) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalTriviaBadges / 150) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Skill Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalSkillBadges}/300 ({Math.min(Math.round((totalStats.totalSkillBadges / 300) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalSkillBadges / 300) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Milestone 3 */}
+                    <div className="border border-yellow-400/40 bg-black/60 p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-base font-medium text-yellow-300">
+                          Milestone #3 - 950 Badges
+                        </h4>
+                        <div className="text-sm text-yellow-300 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                          {Math.min(Math.round(((Math.min((totalStats.totalArcadeBadges / 250) * 100, 100) + Math.min((totalStats.totalTriviaBadges / 250) * 100, 100) + Math.min((totalStats.totalSkillBadges / 450) * 100, 100)) / 3)), 100)}%
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-300 mb-3">
+                        Target: 250 arcade + 250 trivia + 450 skill badges
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Arcade Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalArcadeBadges}/250 ({Math.min(Math.round((totalStats.totalArcadeBadges / 250) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalArcadeBadges / 250) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Trivia Games</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalTriviaBadges}/250 ({Math.min(Math.round((totalStats.totalTriviaBadges / 250) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalTriviaBadges / 250) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Skill Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalSkillBadges}/450 ({Math.min(Math.round((totalStats.totalSkillBadges / 450) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalSkillBadges / 450) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Milestone 4 */}
+                    <div className="border border-yellow-400/40 bg-black/60 p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-base font-medium text-yellow-300">
+                          Milestone #4 - 1300 Badges
+                        </h4>
+                        <div className="text-sm text-yellow-300 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                          {Math.min(Math.round(((Math.min((totalStats.totalArcadeBadges / 350) * 100, 100) + Math.min((totalStats.totalTriviaBadges / 350) * 100, 100) + Math.min((totalStats.totalSkillBadges / 600) * 100, 100)) / 3)), 100)}%
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-300 mb-3">
+                        Target: 350 arcade + 350 trivia + 600 skill badges
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Arcade Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalArcadeBadges}/350 ({Math.min(Math.round((totalStats.totalArcadeBadges / 350) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-red-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalArcadeBadges / 350) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Trivia Games</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalTriviaBadges}/350 ({Math.min(Math.round((totalStats.totalTriviaBadges / 350) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-red-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalTriviaBadges / 350) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">Skill Badges</span>
+                            <span className="text-gray-300">
+                              {totalStats.totalSkillBadges}/600 ({Math.min(Math.round((totalStats.totalSkillBadges / 600) * 100), 100)}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-1.5">
+                            <div 
+                              className="bg-red-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{width: `${Math.min((totalStats.totalSkillBadges / 600) * 100, 100)}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
