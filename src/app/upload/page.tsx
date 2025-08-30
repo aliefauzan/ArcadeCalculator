@@ -482,6 +482,15 @@ export default function UploadPage() {
     return "bg-slate-700 text-slate-300";
   };
 
+  const getArcadeTier = (points: number) => {
+    if (points >= 95) return { name: "Legend", stars: "⭐⭐⭐⭐⭐" };
+    if (points >= 75) return { name: "Champion", stars: "⭐⭐⭐⭐" };
+    if (points >= 65) return { name: "Ranger", stars: "⭐⭐⭐" };
+    if (points >= 45) return { name: "Trooper", stars: "⭐⭐" };
+    if (points >= 25) return { name: "Novice", stars: "⭐" };
+    return { name: "Unranked", stars: "" };
+  };
+
   return (
     <>
       <style>{`
@@ -525,11 +534,11 @@ export default function UploadPage() {
           N
         </div>
 
-        <div className="relative z-10 flex flex-col items-center justify-start p-4 sm:p-8 min-h-screen">
-          <div className="w-full max-w-7xl mx-auto">
+        <div className="relative z-10 flex flex-col items-center justify-start p-6 sm:p-10 min-h-screen">
+          <div className="w-full max-w-[1400px] mx-auto">
             {/* Enhanced Header */}
             <header className="text-center mb-12 py-4">
-              <h1 className="text-4xl sm:text-5xl mb-2 text-yellow-400 drop-shadow-[3px_3px_0_rgba(0,0,0,0.8)]">
+              <h1 className="text-3xl sm:text-4xl mb-2 text-yellow-400 drop-shadow-[3px_3px_0_rgba(0,0,0,0.8)]">
                 THE ARCADE
               </h1>
               <p className="text-lg sm:text-xl font-bold text-white tracking-widest">
@@ -722,8 +731,8 @@ export default function UploadPage() {
                 </div>
 
                 <div className="border-2 border-yellow-400 bg-black/70 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1200px] text-xs">
+                  <div>
+                    <table className="w-full min-w-[1350px] text-xs">
                       <thead>
                         <tr className="border-b-2 border-yellow-400">
                           <th className="p-3 text-left text-yellow-300 tracking-wider">
@@ -749,6 +758,9 @@ export default function UploadPage() {
                           </th>
                           <th className="p-3 text-center text-yellow-300 tracking-wider">
                             SCORE
+                          </th>
+                          <th className="p-3 text-center text-yellow-300 tracking-wider">
+                            ARCADE TIER
                           </th>
                         </tr>
                       </thead>
@@ -795,6 +807,19 @@ export default function UploadPage() {
                                 ? row.totalPoints
                                 : row.totalPoints.toFixed(1)}
                             </td>
+                            <td className="p-3 text-center">
+                              <div className={`flex flex-col items-center gap-1 leading-none text-xs font-bold ${
+                                getArcadeTier(row.totalPoints).name === 'Legend' ? 'text-yellow-400' :
+                                getArcadeTier(row.totalPoints).name === 'Champion' ? 'text-blue-400' :
+                                getArcadeTier(row.totalPoints).name === 'Ranger' ? 'text-green-400' :
+                                getArcadeTier(row.totalPoints).name === 'Trooper' ? 'text-orange-400' :
+                                getArcadeTier(row.totalPoints).name === 'Novice' ? 'text-purple-400' :
+                                'text-slate-300'
+                              }`}>
+                                <span>{getArcadeTier(row.totalPoints).stars}</span>
+                                <span>{getArcadeTier(row.totalPoints).name}</span>
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -811,6 +836,7 @@ export default function UploadPage() {
                                 0
                               )}
                             </td>
+                            <td className="p-3"></td>
                           </tr>
                           <tr className="border-t border-yellow-400/40 bg-black/80">
                             <td className="p-3 text-right font-bold text-yellow-300" colSpan={7}>
@@ -822,6 +848,7 @@ export default function UploadPage() {
                                 0
                               )}
                             </td>
+                            <td className="p-3"></td>
                           </tr>
                         </tfoot>
                       )}
