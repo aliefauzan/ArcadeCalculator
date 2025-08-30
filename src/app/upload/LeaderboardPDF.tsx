@@ -50,21 +50,21 @@ const styles = StyleSheet.create({
     borderBottomColor: "#4b5563", // Tailwind's gray-600
   },
   headerCell: {
-    padding: 6,
+    padding: 4,
     fontSize: 8,
     color: "#facc15",
-    width: "11%",
+    width: "9%",
     textAlign: "center",
   },
   bodyCell: {
-    padding: 6,
-    fontSize: 9,
-    width: "11%",
+    padding: 4,
+    fontSize: 8,
+    width: "9%",
     textAlign: "center",
     color: "white", // Default white color
   },
   pilotCell: {
-    width: "23%",
+    width: "27%",
     textAlign: "left",
   },
   rankCell: {
@@ -92,6 +92,30 @@ const styles = StyleSheet.create({
   },
   milestoneNA: {
     color: "#94a3b8", // Gray for N/A
+  },
+  // Arcade Tier color styles based on main page
+  tierLegend: {
+    color: "#facc15", // yellow-400
+    fontWeight: "bold",
+  },
+  tierChampion: {
+    color: "#60a5fa", // blue-400
+    fontWeight: "bold",
+  },
+  tierRanger: {
+    color: "#4ade80", // green-400
+    fontWeight: "bold",
+  },
+  tierTrooper: {
+    color: "#fb923c", // orange-400
+    fontWeight: "bold",
+  },
+  tierNovice: {
+    color: "#c084fc", // purple-400
+    fontWeight: "bold",
+  },
+  tierUnranked: {
+    color: "#d1d5db", // slate-300
   },
   // Other column colors
   skillCell: {
@@ -135,6 +159,26 @@ const getMilestoneStyle = (milestone: string) => {
   return styles.milestoneNA;
 };
 
+// Helper function to get arcade tier style based on value
+const getArcadeTier = (points: number) => {
+  if (points >= 95) return { name: "Legend", stars: "★★★★★" };
+  if (points >= 75) return { name: "Champion", stars: "★★★★" };
+  if (points >= 65) return { name: "Ranger", stars: "★★★" };
+  if (points >= 45) return { name: "Trooper", stars: "★★" };
+  if (points >= 25) return { name: "Novice", stars: "★" };
+  return { name: "Unranked", stars: "" };
+};
+
+const getArcadeTierStyle = (tier: string) => {
+  if (tier === "Legend") return styles.tierLegend;
+  if (tier === "Champion") return styles.tierChampion;
+  if (tier === "Ranger") return styles.tierRanger;
+  if (tier === "Trooper") return styles.tierTrooper;
+  if (tier === "Novice") return styles.tierNovice;
+  if (tier === "Unranked") return styles.tierUnranked;
+  return styles.milestoneNA; // Fallback for N/A or other values
+};
+
 // The PDF Document Component
 export const LeaderboardPDF = ({ data }: { data: LeaderboardRow[] }) => (
   <Document>
@@ -156,6 +200,7 @@ export const LeaderboardPDF = ({ data }: { data: LeaderboardRow[] }) => (
             <Text style={styles.headerCell}>TRIVIA</Text>
             <Text style={styles.headerCell}>BONUS</Text>
             <Text style={styles.headerCell}>SCORE</Text>
+            <Text style={styles.headerCell}>ARCADE TIER</Text>
           </View>
           {/* Table Body */}
           {data.map((row, idx) => (
@@ -192,21 +237,44 @@ export const LeaderboardPDF = ({ data }: { data: LeaderboardRow[] }) => (
               }}>
                 {row.totalPoints.toFixed(1)}
               </Text>
+              <Text style={{
+                ...styles.bodyCell,
+                ...getArcadeTierStyle(getArcadeTier(row.totalPoints).name)
+              }}>
+                    {/* Gold stars for Arcade Tier, on separate line */}
+                    {getArcadeTier(row.totalPoints).stars && (
+                      <Text style={{ color: '#FFD700', fontSize: 10, fontWeight: 'bold' }}>
+                        {getArcadeTier(row.totalPoints).stars}
+                      </Text>
+                    )}
+                    {"\n"}
+                    <Text>
+                      {getArcadeTier(row.totalPoints).name && getArcadeTier(row.totalPoints).name !== "Unranked"
+                        ? getArcadeTier(row.totalPoints).name
+                        : "N/A"}
+                    </Text>
+              </Text>
             </View>
           ))}
           {/* Total Before Bonus row */}
           <View style={[styles.tableRow, { borderTopWidth: 2, borderTopColor: '#3b82f6', borderBottomWidth: 0, backgroundColor: '#000000' }]}>
-            <Text style={[styles.bodyCell, { textAlign: 'right', fontWeight: 'bold', color: '#3b82f6', flex: 6 }]}>TOTAL BEFORE BONUS</Text>
-            <Text style={[styles.bodyCell, { textAlign: 'center', fontWeight: 'bold', color: '#3b82f6', flex: 1 }]}>
+            <Text style={[styles.bodyCell, { width: '82%', paddingRight: 12, textAlign: 'right', fontWeight: 'bold', color: '#3b82f6' }]}>
+              TOTAL BEFORE BONUS
+            </Text>
+            <Text style={[styles.bodyCell, { width: '9%', textAlign: 'center', fontWeight: 'bold', color: '#3b82f6' }]}>
               {data.reduce((sum, row) => sum + row.basePoints, 0).toFixed(1)}
             </Text>
+            <Text style={[styles.bodyCell, { width: '9%' }]}></Text>
           </View>
           {/* Total Score row */}
           <View style={[styles.tableRow, { borderTopWidth: 0, borderBottomWidth: 0, backgroundColor: '#000000' }]}>
-            <Text style={[styles.bodyCell, { textAlign: 'right', fontWeight: 'bold', color: '#fbbf24', flex: 6 }]}>TOTAL SCORE</Text>
-            <Text style={[styles.bodyCell, { textAlign: 'center', fontWeight: 'bold', color: '#fbbf24', flex: 1 }]}>
+            <Text style={[styles.bodyCell, { width: '82%', paddingRight: 12, textAlign: 'right', fontWeight: 'bold', color: '#fbbf24' }]}>
+              TOTAL SCORE
+            </Text>
+            <Text style={[styles.bodyCell, { width: '9%', textAlign: 'center', fontWeight: 'bold', color: '#fbbf24' }]}>
               {data.reduce((sum, row) => sum + row.totalPoints, 0).toFixed(1)}
             </Text>
+            <Text style={[styles.bodyCell, { width: '9%' }]}></Text>
           </View>
         </View>
         {/* Author credit and LinkedIn logo/button */}
