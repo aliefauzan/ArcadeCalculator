@@ -3,6 +3,7 @@
 ### Screenshots
 
 ![Arcade Calculator Demo](./image.png)
+(./image1.png)
 
 A powerful Next.js web application designed to process Google Cloud Skills Boost CSV data and generate interactive leaderboards for arcade team. This tool automatically scrapes participant profiles, calculates points based on achievements, and provides beautiful visualizations with PDF export capabilities.
 
