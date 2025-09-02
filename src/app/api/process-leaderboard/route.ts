@@ -294,16 +294,16 @@ export async function POST(request: Request) {
         // Milestone logic using combined arcade+extraskill count
         if (milestoneArcadeCount >= 10 && triviaCount >= 8 && skillBadgeCount >= 44) {
           milestoneName = "ULTIMATE MASTER";
-          bonusPoints = 25;
+          bonusPoints = 28;
         } else if (milestoneArcadeCount >= 8 && triviaCount >= 7 && skillBadgeCount >= 30) {
           milestoneName = "GALAXY COMMANDER";
-          bonusPoints = 15;
+          bonusPoints = 19;
         } else if (milestoneArcadeCount >= 6 && triviaCount >= 6 && skillBadgeCount >= 20) {
           milestoneName = "SPACE PILOT";
-          bonusPoints = 10;
+          bonusPoints = 14;
         } else if (milestoneArcadeCount >= 4 && triviaCount >= 4 && skillBadgeCount >= 10) {
           milestoneName = "CADET";
-          bonusPoints = 5;
+          bonusPoints = 7;
         }
         
         const totalPoints = basePoints + bonusPoints;
