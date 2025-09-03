@@ -80,9 +80,10 @@ This provides clear, per-file feedback so users understand caching behavior at a
 ### Advanced Scoring Features
 - **Intelligent Point Calculation**: Automated scoring based on multiple achievement types:
   - Skill badges: 0.5 points each
+  - Extraskill badge: 2 points each
   - Arcade games: 1 point each
   - Trivia games: 1 point each
-  - Milestone bonuses: up to 25 points
+  - Milestone bonuses: up to 28 points
 - **Milestone Recognition System**: Four distinct achievement levels:
   - 🥇 **ULTIMATE**: Highest tier with gradient pink-violet badge
   - 🥈 **Level 3**: Galaxy Commander with yellow badge
