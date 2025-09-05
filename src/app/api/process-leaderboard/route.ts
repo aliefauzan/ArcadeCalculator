@@ -3,6 +3,50 @@ import * as cheerio from 'cheerio';
 import Papa from 'papaparse';
 import crypto from 'crypto';
 
+// Function to get actual image dimensions for completion badge detection
+async function getImageDimensions(url: string): Promise<{ width: number; height: number }> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return { width: 0, height: 0 };
+    
+    const buffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
+    
+    // Check for PNG signature
+    if (uint8Array[0] === 0x89 && uint8Array[1] === 0x50 && uint8Array[2] === 0x4E && uint8Array[3] === 0x47) {
+      // PNG format - width and height are at bytes 16-19 and 20-23
+      const width = (uint8Array[16] << 24) | (uint8Array[17] << 16) | (uint8Array[18] << 8) | uint8Array[19];
+      const height = (uint8Array[20] << 24) | (uint8Array[21] << 16) | (uint8Array[22] << 8) | uint8Array[23];
+      return { width, height };
+    }
+    
+    // Check for JPEG signature
+    if (uint8Array[0] === 0xFF && uint8Array[1] === 0xD8) {
+      // JPEG format - need to parse JPEG segments
+      let i = 2;
+      while (i < uint8Array.length - 4) {
+        if (uint8Array[i] === 0xFF) {
+          const marker = uint8Array[i + 1];
+          if (marker === 0xC0 || marker === 0xC1 || marker === 0xC2) {
+            // SOF (Start of Frame) marker found
+            const height = (uint8Array[i + 5] << 8) | uint8Array[i + 6];
+            const width = (uint8Array[i + 7] << 8) | uint8Array[i + 8];
+            return { width, height };
+          }
+          const segmentLength = (uint8Array[i + 2] << 8) | uint8Array[i + 3];
+          i += 2 + segmentLength;
+        } else {
+          i++;
+        }
+      }
+    }
+    
+    return { width: 0, height: 0 };
+  } catch (error) {
+    console.error('Error getting image dimensions:', error);
+    return { width: 0, height: 0 };
+  }
+}
 
 interface CsvRow {
   "Nama Peserta": string;
@@ -58,7 +102,7 @@ function cleanExpiredCache(): void {
   });
 }
 
-async function scrapeProfile(url: string) {
+async function scrapeProfile(url: string, participantName: string = '', batchNumber: number = 0) {
   if (!url) {
     return { skillBadgeCount: 0, arcadeBadgeCount: 0, triviaBadgeCount: 0, extraSkillBadgeCount: 0 };
   }
@@ -94,7 +138,9 @@ async function scrapeProfile(url: string) {
       // Define the minimum date for valid badges
       const minDate = new Date('2025-07-15');
 
-      badges.each((i, el) => {
+      // Process badges sequentially to handle async image dimension checks
+      for (let i = 0; i < badges.length; i++) {
+        const el = badges[i];
         const badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
         
         // **START: Date Filtering Logic**
@@ -105,7 +151,7 @@ async function scrapeProfile(url: string) {
         // If no "Earned" date is found, skip this badge
         if (!match) {
           // console.log(`❌ SKIPPED - No date found: "${badgeTitle}"`);
-          return;
+          continue;
         }
         
         const earnedDate = new Date(match[1]);
@@ -113,7 +159,7 @@ async function scrapeProfile(url: string) {
         // If the badge was earned before the minimum date, skip it
         if (earnedDate < minDate) {
           // console.log(`❌ SKIPPED - Date too early (${match[1]}): "${badgeTitle}"`);
-          return;
+          continue;
         }
         // **END: Date Filtering Logic**
 
@@ -122,10 +168,29 @@ async function scrapeProfile(url: string) {
         // console.log(`🔍 Processing badge: "${badgeTitle}"`);
         
         // **START: Completion Badge Filtering**
+        // Check completion badges by image dimensions first (more reliable)
+        const badgeImg = $(el).find('img[role="presentation"]');
+        const imgSrc = badgeImg.attr('src') || '';
+        
+        if (imgSrc) {
+          try {
+            const dimensions = await getImageDimensions(imgSrc);
+            // Completion badges have dimensions 1000×909 or 240×218
+            const isCompletionBySize = (dimensions.width === 1000 && dimensions.height === 909) || 
+                                      (dimensions.width === 240 && dimensions.height === 218);
+            if (isCompletionBySize) {
+               console.log(`❌ SKIPPED - Completion badge by size (${dimensions.width}×${dimensions.height}) for ${participantName} [Batch ${batchNumber}]: "${badgeTitle}"`);
+              continue;
+            }
+          } catch (error) {
+            console.error('Error checking image dimensions:', error);
+          }
+        }
+        
         // Skip completion badges by title pattern
         if (completionRegex.test(badgeTitle)) {
-           console.log(`❌ SKIPPED - Completion badge: "${badgeTitle}"`);
-          return;
+           console.log(`❌ SKIPPED - Completion badge by title for ${participantName} [Batch ${batchNumber}]: "${badgeTitle}"`);
+          continue;
         }
         
         // Check for course completion patterns (additional check)
@@ -136,7 +201,7 @@ async function scrapeProfile(url: string) {
         
         if (isCourseBadge) {
           // console.log(`❌ SKIPPED - Course badge: "${badgeTitle}"`);
-          return;
+          continue;
         }
         // **END: Completion Badge Filtering**
         let badgeType = null;
@@ -187,7 +252,7 @@ async function scrapeProfile(url: string) {
         } else {
           // console.log(`❓ UNKNOWN: "${badgeTitle}" - type: ${badgeType}`);
         }
-      });
+      }
 
       // console.log(`📊 Final counts - Skill: ${skillBadgeCount}, Arcade: ${arcadeBadgeCount}, Trivia: ${triviaBadgeCount}, ExtraSkill: ${extraSkillBadgeCount}`);
       // console.log(`📊 Display counts - Combined Arcade: ${arcadeBadgeCount + extraSkillBadgeCount}, Trivia: ${triviaBadgeCount}`);
@@ -266,11 +331,12 @@ export async function POST(request: Request) {
 
     for (let i = 0; i < participants.length; i += BATCH_SIZE) {
       const batch = participants.slice(i, i + BATCH_SIZE);
-      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}...`);
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+      console.log(`Processing batch ${batchNumber}...`);
 
       const batchPromises = batch.map(async (participant) => {
         const { "Nama Peserta": nama, "URL Profil Google Cloud Skills Boost": url } = participant;
-        const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount } = await scrapeProfile(url);
+        const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount } = await scrapeProfile(url, nama, batchNumber);
 
         // Log badge counts for each participant before point calculation
         //const totalBadges = skillBadgeCount + arcadeBadgeCount + triviaBadgeCount + extraSkillBadgeCount;
@@ -312,6 +378,7 @@ export async function POST(request: Request) {
 
       const batchResults = await Promise.all(batchPromises);
       finalLeaderboardData.push(...batchResults);
+      console.log(`✅ Completed batch ${batchNumber} (${batchResults.length} participants)`);
       
       await new Promise(resolve => setTimeout(resolve, 500));
     }
