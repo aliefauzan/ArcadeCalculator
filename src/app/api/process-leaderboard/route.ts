@@ -179,7 +179,7 @@ async function scrapeProfile(url: string, participantName: string = '', batchNum
             const isCompletionBySize = (dimensions.width === 1000 && dimensions.height === 909) || 
                                       (dimensions.width === 240 && dimensions.height === 218);
             if (isCompletionBySize) {
-               console.log(`❌ SKIPPED - Completion badge by size (${dimensions.width}×${dimensions.height}) for ${participantName} [Batch ${batchNumber}]: "${badgeTitle}"`);
+            // console.log(`❌ SKIPPED - Completion badge by size (${dimensions.width}×${dimensions.height}) for ${participantName} [Batch ${batchNumber}]: "${badgeTitle}"`);
               continue;
             }
           } catch (error) {
@@ -189,7 +189,7 @@ async function scrapeProfile(url: string, participantName: string = '', batchNum
         
         // Skip completion badges by title pattern
         if (completionRegex.test(badgeTitle)) {
-           console.log(`❌ SKIPPED - Completion badge by title for ${participantName} [Batch ${batchNumber}]: "${badgeTitle}"`);
+          // console.log(`❌ SKIPPED - Completion badge by title for ${participantName} [Batch ${batchNumber}]: "${badgeTitle}"`);
           continue;
         }
         
