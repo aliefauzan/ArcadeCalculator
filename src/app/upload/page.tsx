@@ -217,7 +217,7 @@ export default function UploadPage() {
   >([]);
 
   // Constants
-  const BATCH_SIZE = 10; // Same as in the API
+  const BATCH_SIZE = 20; // Same as in the API
   const MAX_FILES = 2;
 
   // Helper functions
@@ -395,15 +395,16 @@ export default function UploadPage() {
       // Start with initial progress
       updateProgress(10);
       
-      // Create a smooth progress animation that estimates based on typical API time
-      const estimatedTotalTime = totalBatches * 3000; // 3 seconds per batch estimate
-      const updateInterval = 500; // Update every 500ms
-      const progressIncrement = 80 / (estimatedTotalTime / updateInterval); // 80% for processing
+      // 🎯 OPTIMIZED: Updated for batch size 20 + removed delays
+      // With 2x batch size and no inter-batch delays, expect ~50% faster processing
+      const estimatedTotalTime = totalBatches * 4000; // ~4 seconds per batch (optimized estimate)
+      const updateInterval = 800; // Update every 800ms (matches batch rhythm)
+      const progressIncrement = 75 / (estimatedTotalTime / updateInterval); // 75% for processing
       
       let currentProgress = 10;
       const progressTimer = setInterval(() => {
         currentProgress += progressIncrement;
-        if (currentProgress < 90) {
+        if (currentProgress < 85) { // Stop at 85% for smooth completion
           updateProgress(Math.round(currentProgress));
         }
       }, updateInterval);
