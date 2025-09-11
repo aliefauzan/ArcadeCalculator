@@ -211,7 +211,6 @@ async function scrapeProfile(url: string) {
         // Check for arcade badges (level-based or specific arcade patterns)
         else if (normalizedTitle.includes('level') || 
                 normalizedTitle.includes('game') ||
-                normalizedTitle.includes('play') ||
                 arcadeRegex.test(badgeTitle)) {
           badgeType = 'arcade';
         }
