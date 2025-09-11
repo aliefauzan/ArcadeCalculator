@@ -148,10 +148,35 @@ async function scrapeProfile(url: string) {
 
       if (!response.ok) {
         console.error(`Attempt ${attempt}: Failed to fetch ${url} with status: ${response.status}`);
-        if (response.status >= 500 && attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (attempt < MAX_RETRIES) {
+          let delayMs = 1000; // Default delay
+          
+          // Handle different error types with appropriate delays
+          if (response.status === 429) {
+            // Rate limiting - use exponential backoff with longer delays
+            delayMs = Math.min(2000 * Math.pow(2, attempt - 1), 8000); // 2s, 4s, 8s max
+            console.log(`⏳ Rate limited (429). Waiting ${delayMs}ms before retry ${attempt + 1}...`);
+          } else if (response.status === 403) {
+            // Forbidden - might be temporary, use moderate delay
+            delayMs = 1500;
+            console.log(`🚫 Access forbidden (403). Waiting ${delayMs}ms before retry ${attempt + 1}...`);
+          } else if (response.status >= 500) {
+            // Server errors - use standard delay
+            delayMs = 1000;
+            console.log(`🔄 Server error (${response.status}). Waiting ${delayMs}ms before retry ${attempt + 1}...`);
+          } else {
+            // Other client errors - shorter delay
+            delayMs = 500;
+            console.log(`⚠️ Client error (${response.status}). Waiting ${delayMs}ms before retry ${attempt + 1}...`);
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, delayMs));
           continue;
         }
+        
+        // All retries exhausted
+        console.error(`❌ All ${MAX_RETRIES} attempts failed for ${url} - final status: ${response.status}`);
         return { skillBadgeCount: 0, arcadeBadgeCount: 0, triviaBadgeCount: 0, extraSkillBadgeCount: 0 };
       }
 
@@ -358,7 +383,7 @@ export async function POST(request: Request) {
     for (let i = 0; i < participants.length; i += BATCH_SIZE) {
       const batch = participants.slice(i, i + BATCH_SIZE);
       const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-      const batchStartTime = Date.now();
+      // const batchStartTime = Date.now(); // Commented out - not used with current logging
       console.log(`🚀 OPTIMIZED: Processing batch ${batchNumber} (${batch.length} participants)...`);
 
       const batchPromises = batch.map(async (participant) => {
