@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backup and temporary development files (keep locally but don't commit)
+*.backup.ts
+*.backup.js
+route.backup.ts
+route-new.ts
+route-old.ts
+*-old.*
+*-new.*
+
+# debug and test files
+debug-*.js
+test-*.js

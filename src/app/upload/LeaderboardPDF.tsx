@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
+import { LeaderboardRow } from "../../utils/cache-manager";
 
 // Register the local font file.
 // The path is absolute from the `public` directory.
@@ -135,21 +136,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// Define the type for a single row of leaderboard data.
-type LeaderboardRow = {
-  nama: string;
-  skillPoints: number;
-  arcadePoints: number;
-  triviaPoints: number;
-  bonusPoints: number;
-  basePoints: number;
-  totalPoints: number;
-  milestone: string;
-  skillCount: number;
-  arcadeCount: number;
-  triviaCount: number;
-};
-
 // Helper function to get milestone style based on value
 const getMilestoneStyle = (milestone: string) => {
   if (milestone === "ULTIMATE") return styles.ultimateMilestone;
@@ -218,7 +204,7 @@ export const LeaderboardPDF = ({ data }: { data: LeaderboardRow[] }) => (
               <Text style={{
                 ...styles.bodyCell,
                 ...styles.skillCell
-              }}>{row.skillPoints.toFixed(1)}</Text>
+              }}>{(row.skillCount * 0.5).toFixed(1)}</Text>
               <Text style={{
                 ...styles.bodyCell,
                 ...styles.arcadeCell

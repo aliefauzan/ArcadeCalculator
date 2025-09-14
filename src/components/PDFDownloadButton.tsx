@@ -2,19 +2,7 @@
 import React, { useState } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { LeaderboardPDF } from "../app/upload/LeaderboardPDF";
-
-type LeaderboardRow = {
-  nama: string;
-  skillPoints: number;
-  arcadePoints: number;
-  triviaPoints: number;
-  bonusPoints: number;
-  totalPoints: number;
-  milestone: string;
-  skillCount: number;
-  arcadeCount: number;
-  triviaCount: number;
-};
+import { LeaderboardRow } from "../utils/cache-manager";
 
 interface PDFDownloadButtonProps {
   data: LeaderboardRow[];
