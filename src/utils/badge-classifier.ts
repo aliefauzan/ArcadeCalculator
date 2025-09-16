@@ -12,11 +12,16 @@ const PATTERNS = {
 
 export type BadgeType = 'skill' | 'arcade' | 'trivia' | 'extra' | null;
 
+export interface BadgeClassificationResult {
+  type: BadgeType;
+  countsForMilestone: boolean; // Whether this badge counts towards milestone calculation
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<BadgeType> {
+export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<BadgeClassificationResult> {
   const badgeTitle = $(el).find('.ql-title-medium').text().trim() || $(el).find('.badge-title').text().trim();
   
-  if (!badgeTitle) return null;
+  if (!badgeTitle) return { type: null, countsForMilestone: false };
   
   // **START: Date Filtering Logic - exactly from original**
   const earnedText = $(el).text();
@@ -24,16 +29,20 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
   
   // If no "Earned" date is found, skip this badge
   if (!match) {
-    return null;
+    return { type: null, countsForMilestone: false };
   }
   
   const earnedDate = new Date(match[1]);
   const minDate = new Date('2025-07-15');
+  const maxDate = new Date('2025-09-16'); // Maximum date for milestone eligibility
   
   // If the badge was earned before the minimum date, skip it
   if (earnedDate < minDate) {
-    return null;
+    return { type: null, countsForMilestone: false };
   }
+  
+  // Determine if this badge counts for milestone calculation
+  const countsForMilestone = earnedDate <= maxDate;
   // **END: Date Filtering Logic**
 
   // **START: Enhanced Badge Classification - exactly from original**
@@ -42,30 +51,30 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
   // Check for excluded badges first (should not count at all)
   if (PATTERNS.excluded.test(badgeTitle)) {
     console.log(`🚫 Excluding badge: ${badgeTitle}`);
-    return null;
+    return { type: null, countsForMilestone: false };
   }
 
   // Check for extra badges first (highest priority)
   if (PATTERNS.extraSkill.test(badgeTitle)) {
-    return 'extra';
+    return { type: 'extra', countsForMilestone };
   }
   // Check for trivia badges
   else if (normalizedTitle.includes('trivia') || PATTERNS.trivia.test(badgeTitle)) {
-    return 'trivia';
+    return { type: 'trivia', countsForMilestone };
   }
   // Check for arcade badges (level-based or specific arcade patterns)
   else if (normalizedTitle.includes('level') || 
           normalizedTitle.includes('game') ||
           PATTERNS.arcade.test(badgeTitle)) {
-    return 'arcade';
+    return { type: 'arcade', countsForMilestone };
   }
   // Check completion badges by title pattern first
   else if (PATTERNS.completion.test(badgeTitle)) {
-    return null; // Skip completion badges
+    return { type: null, countsForMilestone: false }; // Skip completion badges
   }
   // Check if it's a valid skill badge by looking up in our skill badge database
   else if (skillBadgeNames.includes(normalizedTitle)) {
-    return 'skill';
+    return { type: 'skill', countsForMilestone };
   }
 
   // Check modal dialog for game badges as last resort
@@ -74,12 +83,15 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
     const gameHref = $(el).find('ql-button[href]').attr('href') || '';
     if (gameHref.startsWith('/games/')) {
       // Check if it's trivia or arcade based on content
-      return normalizedTitle.includes('trivia') ? 'trivia' : 'arcade';
+      return { 
+        type: normalizedTitle.includes('trivia') ? 'trivia' : 'arcade', 
+        countsForMilestone 
+      };
     }
   }
 
   // Final fallback: if it passed all the above checks and no type was determined,
   // it's most likely a completion badge we missed - skip it
-  return null; // Skip unknown badges rather than counting as skill
+  return { type: null, countsForMilestone: false }; // Skip unknown badges rather than counting as skill
   // **END: Enhanced Badge Classification**
 }

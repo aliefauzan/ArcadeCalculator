@@ -1,10 +1,3 @@
-export interface BadgeCount {
-  skillBadgeCount: number;
-  arcadeBadgeCount: number;
-  triviaBadgeCount: number;
-  extraSkillBadgeCount: number;
-}
-
 export async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {

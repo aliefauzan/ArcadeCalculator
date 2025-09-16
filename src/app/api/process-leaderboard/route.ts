@@ -76,10 +76,10 @@ export async function POST(request: Request) {
 
       const batchPromises = batch.map(async (participant) => {
         const { "Nama Peserta": nama, "URL Profil Google Cloud Skills Boost": url } = participant;
-        const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount } = await scrapeProfile(url);
+        const badgeCount = await scrapeProfile(url);
 
-        // Calculate points using the utility function
-        const scoreData = calculatePoints(skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount);
+        // Calculate points using the updated utility function
+        const scoreData = calculatePoints(badgeCount);
         
         return { 
           nama, 
