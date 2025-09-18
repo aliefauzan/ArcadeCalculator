@@ -535,6 +535,13 @@ export default function UploadPage() {
           N
         </div>
 
+        {/* Last Update Timestamp */}
+        <div className="fixed top-4 right-4 bg-black/80 border-2 border-yellow-400/60 px-3 py-2 text-xs">
+          <div className="text-yellow-400 font-bold mb-1">LAST UPDATE</div>
+          <div className="text-white">{process.env.BUILD_DATE}</div>
+          <div className="text-gray-500 text-xs">{process.env.BUILD_TIME}</div>
+        </div>
+
         <div className="relative z-10 flex flex-col items-center justify-start p-6 sm:p-10 min-h-screen">
           <div className="w-full max-w-[1400px] mx-auto">
             {/* Enhanced Header */}

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import packageJson from './package.json';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -13,6 +14,20 @@ const nextConfig: NextConfig = {
   generateEtags: false,
   // Ensure proper output for Cloud Run
   output: 'standalone',
+  
+  // Environment variables for build info
+  env: {
+    BUILD_DATE: new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    }),
+    BUILD_VERSION: packageJson.version,
+    BUILD_TIME: new Date().toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    }),
+  },
   
   // WebAssembly configuration for @react-pdf/renderer
   webpack: (config, { isServer }) => {
