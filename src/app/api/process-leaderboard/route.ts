@@ -89,7 +89,8 @@ export async function POST(request: Request) {
           skillCount: scoreData.skillCount, 
           arcadeCount: scoreData.arcadeCount, 
           triviaCount: scoreData.triviaCount, 
-          bonusPoints: scoreData.bonusPoints 
+          bonusPoints: scoreData.bonusPoints,
+          validStatsContribution: scoreData.validStatsContribution
         };
       });
 

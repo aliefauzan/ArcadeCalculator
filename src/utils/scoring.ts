@@ -13,6 +13,12 @@ export interface ParticipantData {
   bonusPoints: number;
   totalPoints: number;
   milestone: string;
+  validStatsContribution: {
+    validSkillCount: number;
+    validArcadeCount: number;
+    validTriviaCount: number;
+    validExtraSkillCount: number;
+  };
 }
 
 export function calculatePoints(badgeCount: BadgeCount) {
@@ -65,22 +71,42 @@ export function calculatePoints(badgeCount: BadgeCount) {
     basePoints,
     bonusPoints,
     totalPoints,
-    milestone: milestoneName || "-"
+    milestone: milestoneName || "-",
+    // Add milestone-eligible counts for statistics
+    validStatsContribution: {
+      validSkillCount: milestoneSkillCount,
+      validArcadeCount: milestoneEligible.arcadeBadgeCount, // Only arcade (not including extra)
+      validTriviaCount: milestoneTriviaCount,
+      validExtraSkillCount: milestoneEligible.extraSkillBadgeCount
+    }
   };
 }
 
 export function calculateTotalStats(leaderboard: LeaderboardRow[]) {
-  const totalArcadeBadges = leaderboard.reduce((sum, p) => sum + p.arcadeCount, 0);
-  const totalTriviaBadges = leaderboard.reduce((sum, p) => sum + p.triviaCount, 0);
-  const totalSkillBadges = leaderboard.reduce((sum, p) => sum + p.skillCount, 0);
-  const totalExtraSkillBadges = 0; // Note: extraskill is included in arcadeCount for display
-  const totalAllBadges = totalArcadeBadges + totalTriviaBadges + totalSkillBadges + totalExtraSkillBadges;
+  // Calculate stats using only valid badges (earned between min and max date)
+  const totalValidArcadeBadges = leaderboard.reduce((sum, p) => {
+    return sum + (p.validStatsContribution?.validArcadeCount || 0);
+  }, 0);
+  
+  const totalValidTriviaBadges = leaderboard.reduce((sum, p) => {
+    return sum + (p.validStatsContribution?.validTriviaCount || 0);
+  }, 0);
+  
+  const totalValidSkillBadges = leaderboard.reduce((sum, p) => {
+    return sum + (p.validStatsContribution?.validSkillCount || 0);
+  }, 0);
+  
+  const totalValidExtraSkillBadges = leaderboard.reduce((sum, p) => {
+    return sum + (p.validStatsContribution?.validExtraSkillCount || 0);
+  }, 0);
+  
+  const totalValidAllBadges = totalValidArcadeBadges + totalValidTriviaBadges + totalValidSkillBadges + totalValidExtraSkillBadges;
   
   return {
-    totalAllBadges,
-    totalArcadeBadges,
-    totalTriviaBadges,
-    totalSkillBadges,
-    totalExtraSkillBadges
+    totalAllBadges: totalValidAllBadges,
+    totalArcadeBadges: totalValidArcadeBadges,
+    totalTriviaBadges: totalValidTriviaBadges,
+    totalSkillBadges: totalValidSkillBadges,
+    totalExtraSkillBadges: totalValidExtraSkillBadges
   };
 }

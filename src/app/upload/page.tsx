@@ -904,13 +904,17 @@ export default function UploadPage() {
               </section>
             )}
 
-            {/* Milestone Progress Section */}
+            {/* Milestone Final Results Section */}
             {totalStats && (
               <section className="w-full mt-8">
                 <div className="border border-yellow-400/40 bg-black/70 p-6">
-                  <h3 className="text-xl font-bold text-yellow-400 mb-6 text-center">
-                    &gt; MILESTONE PROGRESS &lt;
+                  <h3 className="text-xl font-bold text-yellow-400 mb-2 text-center">
+                    &gt; MILESTONE FINAL RESULTS &lt;
                   </h3>
+                  <div className="text-xs text-gray-400 mb-6 text-center border border-gray-600/50 bg-gray-900/50 p-3 rounded">
+                    Statistics below reflect only badges earned during the official competition timeframe<br />
+                    <strong>July 15 - September 16, 2025</strong> 
+                  </div>
                   <div className="space-y-4">
                     {/* Milestone 1 */}
                     <div className="border border-yellow-400/40 bg-black/60 p-4">
@@ -923,7 +927,7 @@ export default function UploadPage() {
                         </div>
                       </div>
                       <div className="text-xs text-gray-300 mb-3">
-                        Target: 100 arcade + 100 trivia + 150 skill badges
+                        Final Achievement: 100 arcade + 100 trivia + 150 skill badges
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
@@ -982,7 +986,7 @@ export default function UploadPage() {
                         </div>
                       </div>
                       <div className="text-xs text-gray-300 mb-3">
-                        Target: 150 arcade + 150 trivia + 300 skill badges
+                        Final Achievement: 150 arcade + 150 trivia + 300 skill badges
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
@@ -1041,7 +1045,7 @@ export default function UploadPage() {
                         </div>
                       </div>
                       <div className="text-xs text-gray-300 mb-3">
-                        Target: 250 arcade + 250 trivia + 450 skill badges
+                        Final Achievement: 250 arcade + 250 trivia + 450 skill badges
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
@@ -1100,7 +1104,7 @@ export default function UploadPage() {
                         </div>
                       </div>
                       <div className="text-xs text-gray-300 mb-3">
-                        Target: 350 arcade + 350 trivia + 600 skill badges
+                        Final Achievement: 350 arcade + 350 trivia + 600 skill badges
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>

@@ -9,6 +9,12 @@ export interface LeaderboardRow {
   arcadeCount: number;
   triviaCount: number;
   bonusPoints: number;
+  validStatsContribution?: {
+    validSkillCount: number;
+    validArcadeCount: number;
+    validTriviaCount: number;
+    validExtraSkillCount: number;
+  };
 }
 
 export interface CacheEntry {
