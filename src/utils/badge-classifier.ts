@@ -50,7 +50,7 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
   
   // Check for excluded badges first (should not count at all)
   if (PATTERNS.excluded.test(badgeTitle)) {
-    console.log(`🚫 Excluding badge: ${badgeTitle}`);
+  //  console.log(`🚫 Excluding badge: ${badgeTitle}`);
     return { type: null, countsForMilestone: false };
   }
 
