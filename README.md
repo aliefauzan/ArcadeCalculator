@@ -1,5 +1,7 @@
 # 🎮 Arcade Team Calculator
-#(https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
+
+**🌐 Live Demo**: [https://arcade-calculator-280204705798.asia-southeast2.run.app/upload](https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
+
 ### Screenshots
 
 ![Arcade Calculator Demo](./image.png)
@@ -19,10 +21,10 @@ A powerful Next.js web application featuring **micro-service architecture** desi
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [Architecture](#️-architecture)
 - [Micro-Service Architecture](#️-micro-service-architecture)
 - [Features](#-features)
 - [Demo](#-demo)
-- [Architecture](#️-architecture)
 - [Quick Start](#-quick-start)
 - [Local Development](#-local-development)
 - [Docker Deployment](#-docker-deployment)
@@ -48,16 +50,129 @@ The Arcade Team Calculator is an intelligent leaderboard management system built
 - ☁️ **Cloud-Ready**: Fully containerized with Docker and deployable to multiple cloud platforms
 - ⚡ **Performance Optimized**: 71% code reduction with maintained functionality and improved maintainability
 
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│    Frontend     │    │   Backend API   │    │  External APIs  │
+│   (Next.js)     │◄──►│   (Next.js)     │◄──►│                 │
+│                 │    │                 │    │ • Google Cloud  │
+│ • React 19      │    │ • CSV Parser    │    │   Skills Boost  │
+│ • TypeScript    │    │ • Web Scraper   │    │ • Profile URLs  │
+│ • Tailwind CSS  │    │ • Score Engine  │    │ • Achievement   │
+│ • PDF Renderer  │    │ • Cache System  │    │   Data          │
+│ • Pixel UI      │    │ • API Routes    │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+        │                       │
+        │                       │
+        ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐
+│   Docker        │    │   Docker        │
+│   Container     │    │   Container     │
+│   (Production)  │    │   (Optional)    │
+└─────────────────┘    └─────────────────┘
+        │                       │
+        │                       │
+        ▼                       ▼
+┌─────────────────────────────────────────┐
+│         Cloud Deployment Options       │
+│                                         │
+│ • Vercel (Recommended)                  │
+│ • Google Cloud Platform                 │
+│ • Netlify                              │
+│ • Railway                              │
+│ • Docker Compose                       │
+└─────────────────────────────────────────┘
+```
+
+### Project Structure
+
+```
+arcadeteamcalculator/
+├── 📁 src/
+│   ├── 📁 app/                     # Next.js App Router
+│   │   ├── 📁 api/                 # Backend API routes
+│   │   │   ├── 📁 process-leaderboard/
+│   │   │   │   └── 📄 route.ts     # Main processing endpoint (139 lines)
+│   │   │   └── 📁 scrape/
+│   │   │       └── 📄 route.ts     # Profile scraping endpoint
+│   │   ├── 📁 upload/              # Main application pages
+│   │   │   ├── 📄 page.tsx         # Upload interface
+│   │   │   └── 📄 LeaderboardPDF.tsx # PDF generation
+│   │   ├── 📄 layout.tsx           # Root layout
+│   │   ├── 📄 page.tsx             # Home redirect
+│   │   └── 📄 globals.css          # Global styles
+│   ├── 📁 components/              # Reusable components
+│   │   └── 📄 PDFDownloadButton.tsx # PDF export component
+│   └── 📁 utils/                   # 🏗️ Micro-Service Utilities
+│       ├── 🔧 cache-manager.ts     # SHA256 caching + TTL management
+│       ├── 🌐 profile-scraper.ts   # Badge scraping orchestration
+│       ├── 🏷️ badge-classifier.ts  # Date filtering + excluded badges
+│       ├── 🔄 fetch-utils.ts       # Smart retry + exponential backoff
+│       ├── 🧮 scoring.ts           # Point calculation + milestones
+│       └── 📚 skill-badges.ts      # Skill badge database loader
+├── 📁 public/                      # Static assets
+│   └── 📁 fonts/                   # Custom pixel fonts
+│       └── 📁 Press_Start_2P/
+├── 🐳 Dockerfile                   # Container configuration
+├── ☁️ cloudbuild.yaml             # Google Cloud Build config
+├── 📄 package.json                 # Dependencies and scripts
+├── 📄 next.config.ts               # Next.js configuration
+├── 📄 tailwind.config.ts           # Tailwind CSS config
+├── 📄 tsconfig.json                # TypeScript configuration
+└── 📄 README.md                    # This file
+```
+
+### Data Flow Architecture
+
+```
+CSV Upload → Data Parsing → Profile Scraping → Date Filtering → Score Calculation → Leaderboard Display
+     ↓              ↓              ↓              ↓                ↓                    ↓
+File Validation → Error Check → Cache Check → Competition Period → Point Assignment → PDF Export
+     ↓              ↓              ↓         Filter (Jul 15-Sep 16)    ↓                    ↓
+Multi-file → Papa Parse → Micro-Service → Badge Classification → Dual Scoring System → React PDF
+Support         Library    Orchestration   (Date Range Aware)   (Base + Milestone)     Generation
+```
+
+### 🏗️ Micro-Service Data Flow
+
+```
+Main Route (139 lines)
+    ├── 🔧 cache-manager.ts ──── SHA256 Hash + 45min TTL
+    ├── 🌐 profile-scraper.ts ── Orchestrates Badge Processing  
+    │   ├── 🔄 fetch-utils.ts ── Smart Retry + Exponential Backoff
+    │   └── 🏷️ badge-classifier.ts ── Date Filter + Competition Period Logic
+    │       ├── 📅 Date Range Check (Jul 15 - Sep 16, 2025)
+    │       ├── 🎯 Dual Counting Logic (Base + Milestone Eligibility)
+    │       └── 📚 skill-badges.ts ── 93 Skill Badge Database
+    └── 🧮 scoring.ts ──────── Point Calculation + Milestone System
+        ├── ⚖️ Base Points (All Valid Badges)
+        └── 🏆 Milestone Points (Competition Period Only)
+```
+
+### Technology Stack
+
+#### Frontend Layer
+- **Framework**: Next.js 15.4.4 with App Router for modern React development
+- **UI Library**: React 19 with TypeScript for type-safe component development
+- **Styling**: Tailwind CSS 4 with custom pixel art components and animations
+- **PDF Generation**: @react-pdf/renderer for high-quality document export
+- **Typography**: Custom Press Start 2P pixel font for retro arcade aesthetics
+
+#### Backend Layer
+- **Runtime**: Next.js API Routes with **micro-service architecture** for serverless function optimization
+- **Data Processing**: Papa Parse for robust CSV parsing and validation
+- **Web Scraping**: Modular profile scraper with badge classification utilities
+- **Caching**: SHA256-based in-memory caching system with 45-minute TTL for performance optimization
+- **Error Handling**: Comprehensive error boundaries with smart retry logic and validation
+
+#### Infrastructure Layer
+- **Containerization**: Docker for consistent deployment across environments
+- **Build System**: Next.js optimized build with automatic code splitting
+- **Static Assets**: Optimized image and font serving with Next.js built-ins
+- **API Design**: RESTful architecture with JSON responses
+
 ## 🏗️ Micro-Service Architecture
-
-### 🎯 Architecture Highlights
-
-The Arcade Calculator has been completely refactored from a **481-line monolithic route** to a **139-line micro-service architecture**, achieving:
-
-- **71% Code Reduction**: From 481 lines to 139 lines (342 lines removed)
-- **100% Functional Parity**: All original features preserved and enhanced
-- **Improved Maintainability**: Modular utilities for testing and extensibility
-- **Enhanced Performance**: Smart caching and optimized processing
 
 ### 📁 Micro-Service Structure
 
@@ -77,21 +192,11 @@ The Arcade Calculator has been completely refactored from a **481-line monolithi
 └── 📚 skill-badges.ts - Skill badge database (93 badges)
 ```
 
-### 🚀 Benefits of Micro-Service Architecture
-
-| Aspect | Monolithic (Before) | Micro-Service (After) | Improvement |
-|--------|-------------------|---------------------|-------------|
-| **Code Size** | 481 lines | 139 lines | 🔥 **71% reduction** |
-| **Maintainability** | Single large file | 6 modular utilities | ✅ **Highly modular** |
-| **Testing** | Difficult to isolate | Easy unit testing | 🧪 **Test-friendly** |
-| **Reusability** | Tightly coupled | Loosely coupled | 🔄 **Reusable** |
-| **Performance** | All functionality in one place | Optimized per service | ⚡ **Enhanced** |
-| **Debugging** | Complex stack traces | Clear service boundaries | 🐛 **Easy debugging** |
-
 ## ✨ Features
 
 ### Core Functionality
 - **🏗️ Micro-Service Architecture**: Modern modular design with 71% code reduction while maintaining 100% functionality
+- **⏰ Automated Build Timestamps**: Live deployment tracking with automatic date, version, and time updates in top-right corner
 - **Multi-File CSV Processing**: Upload and process up to 2 CSV files simultaneously with intelligent data merging
 - **⚡ High-Performance Processing**: Optimized parallel badge processing with smart caching for maximum speed
 - **Real-time Profile Scraping**: Automated extraction of achievement data from Google Cloud Skills Boost profiles
@@ -116,22 +221,26 @@ API responses include the following fields which the frontend uses to populate t
 This provides clear, per-file feedback so users understand caching behavior at a glance.
 
 ### Advanced Scoring Features
-- **🚀 Optimized Parallel Processing**: Revolutionary parallel badge classification system with:
-  - **Batch Size Optimization**: Processes 20 participants per batch (2x faster than previous 10-participant batches)
+- **� Competition Period Filtering**: Sophisticated date range filtering for official competition period (July 15 - September 16, 2025)
+- **🎯 Dual Badge Counting System**: Intelligent scoring logic where all badges count for base points, but only competition-period badges count for milestone advancement
+- **�🚀 Optimized Parallel Processing**: Revolutionary parallel badge classification system with:
+  - **Optimized Batch Processing**: Processes 20 participants per batch for maximum efficiency
   - **Smart Image Dimension Logic**: Only checks image dimensions when text classification is uncertain (~80% fewer network requests)
-  - **Eliminated Processing Delays**: Removed artificial inter-batch delays for continuous processing speed
+  - **Continuous Processing Speed**: No artificial inter-batch delays for maximum throughput
   - **Real-time Performance Monitoring**: Live batch timing and speed tracking for transparent processing
 - **Enhanced Badge Classification System**: State-of-the-art badge detection using multiple validation methods:
   - **Image Dimension Detection**: Identifies completion badges by analyzing image dimensions (1000×909 pixels)
   - **Skill Badge Database Validation**: Cross-references against comprehensive skill.json database with 93+ verified skill badges
   - **Keyword-Based Classification**: Advanced pattern matching for arcade, trivia, and extra badges
   - **Fallback Detection Logic**: Multi-layered classification ensuring accurate badge categorization
-- **Intelligent Point Calculation**: Automated scoring based on multiple achievement types:
+- **Intelligent Point Calculation**: Automated dual-tier scoring system with competition period awareness:
+  - **Base Points**: All earned badges count towards base score regardless of date
+  - **Milestone Eligibility**: Only badges earned during competition period (July 15 - September 16, 2025) count for milestone advancement
   - Skill badges: 0.5 points each
   - Extraskill badge: 2 points each
   - Arcade games: 1 point each
   - Trivia games: 1 point each
-  - Milestone bonuses: up to 28 points
+  - Milestone bonuses: up to 28 points (based on competition-period badges only)
 - **Milestone Recognition System**: Four distinct achievement levels:
   - 🥇 **ULTIMATE**: Highest tier with gradient pink-violet badge
   - 🥈 **Level 3**: Galaxy Commander with yellow badge
@@ -141,6 +250,7 @@ This provides clear, per-file feedback so users understand caching behavior at a
 
 ### Visual & UX Features
 - **Retro Arcade Aesthetic**: Pixel-perfect 8-bit inspired design with custom animations
+- **⏰ Live Build Information**: Top-right corner displays automated build date, version, and deployment time
 - **🚀 Rocket-Themed Progress Bar**: Interactive animated progress indicator with flying rocket that follows batch processing in real-time
 - **Dynamic Backgrounds**: Animated starfield with floating pixel spaceships
 - **Custom Typography**: Press Start 2P pixel font for authentic retro gaming feel
@@ -151,10 +261,17 @@ This provides clear, per-file feedback so users understand caching behavior at a
 ### Progress & Loading Experience
 - **🎯 Batch-Accurate Progress**: Progress bar synchronized with actual API batch processing (e.g., batch 4/6 = 67% progress)
 - **🚀 Animated Rocket Indicator**: Custom SVG rocket that travels along the progress bar, showing exact completion percentage
-- **⚡ Optimized Progress Timing**: Updated for new performance optimizations (~4 seconds per batch with 20-participant batches)
+- **⚡ Optimized Progress Timing**: Calibrated for current performance capabilities (~4 seconds per batch with 20-participant batches)
 - **🎨 Pixel Art Components**: Custom PixelRocket and ThemeRocket SVG components with retro gaming aesthetics
 - **📊 Smart Progress Calculation**: Intelligent estimation based on participant count and optimized batch size (20 participants per batch)
 - **✨ Smooth Transitions**: 800ms CSS transitions calibrated to match real processing speed
+
+### Competition Period Features
+- **📅 Smart Date Range Filtering**: Official competition period enforcement (July 15 - September 16, 2025)
+- **🎯 Milestone Final Results**: Post-competition UI shows "Final Results" instead of "Progress" for clarity
+- **📊 Competition-Period Statistics**: Badge statistics filtered to show only achievements earned during the official timeframe
+- **⚖️ Fair Scoring Logic**: Dual counting system ensures fairness - all badges contribute to base points, but milestone advancement requires competition-period participation
+- **ℹ️ Clear Period Indicators**: Visual indicators throughout the UI showing competition dates and explaining filtering logic
 
 ### Export & Reporting
 - **Professional PDF Generation**: High-quality PDF reports with maintained color schemes
@@ -169,23 +286,39 @@ The Arcade Calculator uses a sophisticated multi-layer classification system ins
 #### Classification Flow
 
 ```
-Badge Detection → Text Classification → Smart Image Check → Database Lookup → Final Assignment
+Badge Detection → Date Range Check → Text Classification → Smart Image Check → Database Lookup → Final Assignment
 ```
 
-#### 🚀 Performance Optimizations (v2.0)
+#### 📅 Date Filtering & Competition Period Logic
 
-The latest version includes revolutionary performance improvements that deliver **70-85% faster processing**:
+The system implements sophisticated date-based filtering to ensure fair competition:
+
+##### Date Range Enforcement
+- **Minimum Date**: July 15, 2025 (badges before this date are excluded entirely)
+- **Maximum Date**: September 16, 2025 (for milestone eligibility)
+- **Dual Counting Logic**: 
+  - All valid badges (after min date) count for base points
+  - Only competition-period badges (between min-max dates) count for milestone advancement
+
+##### Competition Period Benefits
+- **Fair Play**: Ensures all participants compete within the same timeframe
+- **Milestone Integrity**: Milestone achievements based on competition-period performance only
+- **Base Score Preservation**: Pre-competition achievements still contribute to base scoring
+- **Clear Boundaries**: Transparent date indicators in UI and statistics
+
+#### 🚀 Performance Optimizations
+
+The system delivers **high-performance processing** with intelligent optimization strategies:
 
 ##### 1. Parallel Processing Architecture
 - **Concurrent Badge Processing**: All badges within a batch are processed simultaneously using `Promise.all()`
-- **Batch Size Optimization**: Increased from 10 to 20 participants per batch (50% fewer total batches)
-- **Eliminated Delays**: Removed artificial 500ms inter-batch delays for continuous processing
+- **Optimized Batch Size**: Processes 20 participants per batch for maximum efficiency
+- **Continuous Processing**: No artificial delays, maintaining constant processing speed
 
 ##### 2. Smart Image Dimension Logic
-- **Before**: Downloaded and analyzed image dimensions for every single badge (slow)
-- **After**: Only checks image dimensions when text classification is uncertain
-- **Impact**: ~80% reduction in network requests and image downloads
-- **Speed Gain**: Massive performance improvement for profiles with many badges
+- **Intelligent Analysis**: Only checks image dimensions when text classification is uncertain
+- **Reduced Network Requests**: ~80% fewer network requests through intelligent image analysis
+- **Performance Boost**: Significant speed improvements for profiles with many badges
 
 ##### 3. Optimized Classification Flow
 ```
@@ -203,19 +336,18 @@ Text-Based Classification (Fast) → Database Lookup → Image Check (Only if ne
 
 ##### 4. Performance Monitoring
 - **Real-time batch timing**: Track actual processing speed per batch
-- **Transparent logging**: Monitor performance improvements in console
+- **Transparent logging**: Monitor performance metrics in console
 - **Calibrated progress**: Progress bar matches actual processing speed
 
-##### 5. Expected Performance Gains
-- **Batch Processing**: ~50% faster (20 vs 10 participants per batch)
-- **No Delays**: ~10-15% faster (eliminated artificial waiting)
-- **Smart Image Logic**: ~60-80% faster (fewer network calls)
-- **Combined Effect**: **~70-85% overall speed improvement**
+##### 5. Current Performance Metrics
+- **Batch Processing**: 20 participants per batch (optimized size)
+- **Processing Speed**: ~4 seconds per batch
+- **Smart Image Logic**: 60-80% fewer network calls
+- **Overall Performance**: **~15-25 seconds** for 115 participants
 
 **Real-World Impact**:
-- **Before**: ~88 seconds for 115 participants
-- **After**: **~15-25 seconds** for same workload
-- **Scaling**: Benefits increase with larger datasets
+- **Current Speed**: **~15-25 seconds** for 115 participants
+- **Scalability**: Performance benefits increase with larger datasets
 
 #### 1. Completion Badge Detection
 - **Primary Method**: Image dimension analysis (1000×909 or 240×218 pixels)
@@ -246,11 +378,11 @@ Text-Based Classification (Fast) → Database Lookup → Image Check (Only if ne
 
 ## 🎯 Demo
 
-*The Arcade Calculator in action - featuring blazing-fast processing with optimized parallel badge classification, retro-themed leaderboard with colorful milestone badges, real-time scoring, and professional presentation*
+*The Arcade Calculator in action - featuring blazing-fast processing with optimized parallel badge classification, retro-themed leaderboard with colorful milestone badges, real-time scoring, and professional presentation. Perfect for analyzing competition results and historical achievement data.*
 
 ### Main Interface Features
 
-- **⚡ Lightning-Fast Processing**: Optimized parallel processing delivers 70-85% faster CSV processing
+- **⚡ High-Performance Processing**: Optimized parallel processing for fast CSV processing
 - **Intuitive Upload Interface**: Drag-and-drop CSV file upload with real-time progress indicators
 - **🚀 Rocket Progress Animation**: Live progress updates with animated rocket following actual batch completion
 - **Interactive Leaderboard**: Sortable, filterable results with detailed participant information
@@ -258,7 +390,7 @@ Text-Based Classification (Fast) → Database Lookup → Image Check (Only if ne
 
 ### Key Demo Highlights
 
-- **🔥 Optimized Performance**: Revolutionary speed improvements with smart caching and parallel processing
+- **🔥 Optimized Performance**: Advanced speed improvements with smart caching and parallel processing
 - **Smart Data Processing**: Automatic CSV parsing with error detection and validation
 - **🚀 Real-time Batch Tracking**: Progress bar synchronized with actual API processing (batch 4/6 = 67%)
 - **Live Leaderboard Updates**: Real-time ranking updates as data is processed batch by batch
@@ -267,29 +399,24 @@ Text-Based Classification (Fast) → Database Lookup → Image Check (Only if ne
 
 ### Performance Showcase
 
-**Before Optimization**:
-- 115 participants: ~88 seconds
-- Sequential badge processing
-- Image checks for every badge
-
-**After Optimization**:
+**Current Performance**:
 - 115 participants: **~15-25 seconds**
 - Parallel batch processing (20 participants/batch)
 - Smart image dimension logic (80% fewer network requests)
-- Eliminated processing delays
+- Continuous processing with no artificial delays
 
 ## 🚀 Quick Start
 
 ### Performance at a Glance
 
-| Metric | Before Optimization | After Optimization | Improvement |
-|--------|-------------------|-------------------|-------------|
-| **Batch Size** | 10 participants | 20 participants | 🔥 **2x larger** |
-| **Processing Time** | ~88 seconds (115 participants) | ~15-25 seconds | ⚡ **70-85% faster** |
-| **Image Downloads** | Every badge checked | Only uncertain cases | 🧠 **80% reduction** |
-| **Inter-batch Delays** | 500ms artificial delay | Eliminated | 🚫 **No delays** |
-| **Badge Processing** | Sequential (slow) | Parallel (fast) | 🚀 **Concurrent** |
-| **Progress Updates** | Generic timing | Real batch tracking | 🎯 **Accurate** |
+| Metric | Current Performance | Details |
+|--------|-------------------|-------------|
+| **Batch Size** | 20 participants | 🔥 **Optimized batching** |
+| **Processing Time** | ~15-25 seconds (115 participants) | ⚡ **Lightning fast** |
+| **Image Downloads** | Only uncertain cases | 🧠 **Smart logic** |
+| **Inter-batch Delays** | None | 🚫 **Continuous processing** |
+| **Badge Processing** | Parallel (concurrent) | 🚀 **Maximum efficiency** |
+| **Progress Updates** | Real batch tracking | 🎯 **Accurate monitoring** |
 
 ### Prerequisites
 
@@ -362,8 +489,21 @@ npm run dev
    - API routes: `src/app/api/`
    - Main processor: `src/app/api/process-leaderboard/route.ts`
    - Scraping service: `src/app/api/scrape/route.ts`
+   - Date filtering: `src/utils/badge-classifier.ts` (competition period logic)
 
-3. **Testing**
+3. **Build & Deployment**
+   ```bash
+   # Development with auto-updating timestamps
+   npm run dev
+   
+   # Build with automatic timestamp generation
+   npm run build  # Updates BUILD_DATE, BUILD_VERSION, BUILD_TIME
+   
+   # Production deployment
+   npm run start
+   ```
+
+4. **Testing**
    ```bash
    # Lint code
    npm run lint
@@ -531,124 +671,6 @@ CMD ["node", "server.js"]
 ### Step 4: Export PDF (Optional)
 - Click "DOWNLOAD PDF" to generate a printable report
 - PDF includes all colors and formatting from the web interface
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│    Frontend     │    │   Backend API   │    │  External APIs  │
-│   (Next.js)     │◄──►│   (Next.js)     │◄──►│                 │
-│                 │    │                 │    │ • Google Cloud  │
-│ • React 19      │    │ • CSV Parser    │    │   Skills Boost  │
-│ • TypeScript    │    │ • Web Scraper   │    │ • Profile URLs  │
-│ • Tailwind CSS  │    │ • Score Engine  │    │ • Achievement   │
-│ • PDF Renderer  │    │ • Cache System  │    │   Data          │
-│ • Pixel UI      │    │ • API Routes    │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-        │                       │
-        │                       │
-        ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐
-│   Docker        │    │   Docker        │
-│   Container     │    │   Container     │
-│   (Production)  │    │   (Optional)    │
-└─────────────────┘    └─────────────────┘
-        │                       │
-        │                       │
-        ▼                       ▼
-┌─────────────────────────────────────────┐
-│         Cloud Deployment Options       │
-│                                         │
-│ • Vercel (Recommended)                  │
-│ • Google Cloud Platform                 │
-│ • Netlify                              │
-│ • Railway                              │
-│ • Docker Compose                       │
-└─────────────────────────────────────────┘
-```
-
-### Project Structure
-
-```
-arcadeteamcalculator/
-├── 📁 src/
-│   ├── 📁 app/                     # Next.js App Router
-│   │   ├── 📁 api/                 # Backend API routes
-│   │   │   ├── 📁 process-leaderboard/
-│   │   │   │   └── 📄 route.ts     # Main processing endpoint (139 lines)
-│   │   │   └── 📁 scrape/
-│   │   │       └── 📄 route.ts     # Profile scraping endpoint
-│   │   ├── 📁 upload/              # Main application pages
-│   │   │   ├── 📄 page.tsx         # Upload interface
-│   │   │   └── 📄 LeaderboardPDF.tsx # PDF generation
-│   │   ├── 📄 layout.tsx           # Root layout
-│   │   ├── 📄 page.tsx             # Home redirect
-│   │   └── 📄 globals.css          # Global styles
-│   ├── 📁 components/              # Reusable components
-│   │   └── 📄 PDFDownloadButton.tsx # PDF export component
-│   └── 📁 utils/                   # 🏗️ Micro-Service Utilities
-│       ├── 🔧 cache-manager.ts     # SHA256 caching + TTL management
-│       ├── 🌐 profile-scraper.ts   # Badge scraping orchestration
-│       ├── 🏷️ badge-classifier.ts  # Date filtering + excluded badges
-│       ├── 🔄 fetch-utils.ts       # Smart retry + exponential backoff
-│       ├── 🧮 scoring.ts           # Point calculation + milestones
-│       └── 📚 skill-badges.ts      # Skill badge database loader
-├── 📁 public/                      # Static assets
-│   └── 📁 fonts/                   # Custom pixel fonts
-│       └── 📁 Press_Start_2P/
-├── 🐳 Dockerfile                   # Container configuration
-├── ☁️ cloudbuild.yaml             # Google Cloud Build config
-├── 📄 package.json                 # Dependencies and scripts
-├── 📄 next.config.ts               # Next.js configuration
-├── 📄 tailwind.config.ts           # Tailwind CSS config
-├── 📄 tsconfig.json                # TypeScript configuration
-└── 📄 README.md                    # This file
-```
-
-### Data Flow Architecture
-
-```
-CSV Upload → Data Parsing → Profile Scraping → Score Calculation → Leaderboard Display
-     ↓              ↓              ↓                ↓                    ↓
-File Validation → Error Check → Cache Check → Point Assignment → PDF Export
-     ↓              ↓              ↓                ↓                    ↓
-Multi-file → Papa Parse → Micro-Service → Utility Functions → React PDF
-Support         Library    Orchestration    (6 modules)      Generation
-```
-
-### 🏗️ Micro-Service Data Flow
-
-```
-Main Route (139 lines)
-    ├── 🔧 cache-manager.ts ──── SHA256 Hash + 45min TTL
-    ├── 🌐 profile-scraper.ts ── Orchestrates Badge Processing  
-    │   ├── 🔄 fetch-utils.ts ── Smart Retry + Exponential Backoff
-    │   └── 🏷️ badge-classifier.ts ── Date Filter + Excluded Badges
-    │       └── 📚 skill-badges.ts ── 93 Skill Badge Database
-    └── 🧮 scoring.ts ──────── Point Calculation + Milestones
-```
-
-### Technology Stack
-
-#### Frontend Layer
-- **Framework**: Next.js 15.4.4 with App Router for modern React development
-- **UI Library**: React 19 with TypeScript for type-safe component development
-- **Styling**: Tailwind CSS 4 with custom pixel art components and animations
-- **PDF Generation**: @react-pdf/renderer for high-quality document export
-- **Typography**: Custom Press Start 2P pixel font for retro arcade aesthetics
-
-#### Backend Layer
-- **Runtime**: Next.js API Routes with **micro-service architecture** for serverless function optimization
-- **Data Processing**: Papa Parse for robust CSV parsing and validation
-- **Web Scraping**: Modular profile scraper with badge classification utilities
-- **Caching**: SHA256-based in-memory caching system with 45-minute TTL for performance optimization
-- **Error Handling**: Comprehensive error boundaries with smart retry logic and validation
-
-#### Infrastructure Layer
-- **Containerization**: Docker for consistent deployment across environments
-- **Build System**: Next.js optimized build with automatic code splitting
-- **Static Assets**: Optimized image and font serving with Next.js built-ins
-- **API Design**: RESTful architecture with JSON responses
 
 ## ☁️ Cloud Deployment
 
@@ -1033,17 +1055,17 @@ fetch('/api/scrape', {
 
 The API implements intelligent optimization strategies for maximum performance:
 
-#### Performance Optimizations (v2.0)
+#### Performance Optimizations
 - **🚀 Parallel Batch Processing**: Processes 20 participants per batch with concurrent badge classification
 - **Smart Image Logic**: Only downloads image dimensions when text classification is uncertain (~80% fewer network requests)  
-- **Eliminated Delays**: Removed artificial processing delays for continuous speed
+- **Continuous Processing**: No artificial processing delays for maximum speed
 - **Image Dimension Caching**: In-memory caching prevents redundant image downloads
 - **Real-time Monitoring**: Live batch timing and performance tracking
 
 #### Processing Performance
-- **Batch Size**: 20 participants per batch (optimized from 10)
+- **Batch Size**: 20 participants per batch (optimized)
 - **Parallel Processing**: All badges within a batch processed simultaneously
-- **Expected Speed**: ~4 seconds per batch (70-85% faster than previous version)
+- **Expected Speed**: ~4 seconds per batch
 - **Scaling**: Performance benefits increase with larger datasets
 
 #### Rate Limiting Strategy
@@ -1075,7 +1097,29 @@ Jane Smith,jane@example.com,https://www.cloudskillsboost.google/public_profiles/
 
 ## ⚙️ Configuration
 
-### Environment Variables
+### Build-Time Environment Variables
+
+The application automatically generates build information that appears in the top-right corner:
+
+```typescript
+// next.config.ts - Automatically configured
+env: {
+  BUILD_DATE: new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  }), // e.g., "Sep 21, 2025"
+  BUILD_VERSION: packageJson.version, // e.g., "0.1.0"
+  BUILD_TIME: new Date().toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  }), // e.g., "02:30 PM"
+}
+```
+
+**Automatic Updates**: These variables update automatically every time you run `npm run build`, ensuring users always see accurate deployment information.
+
+### Runtime Environment Variables
 Create a `.env.local` file in the root directory:
 
 ```env
@@ -1183,7 +1227,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2024 Alief Fauzan
+Copyright (c) 2025 Alief Fauzan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
