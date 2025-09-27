@@ -75,7 +75,7 @@ export function calculatePoints(badgeCount: BadgeCount) {
     // Add milestone-eligible counts for statistics
     validStatsContribution: {
       validSkillCount: milestoneSkillCount,
-      validArcadeCount: milestoneEligible.arcadeBadgeCount, // Only arcade (not including extra)
+      validArcadeCount: milestoneEligible.arcadeBadgeCount + milestoneEligible.extraSkillBadgeCount, // Include both arcade and extra for display
       validTriviaCount: milestoneTriviaCount,
       validExtraSkillCount: milestoneEligible.extraSkillBadgeCount
     }
