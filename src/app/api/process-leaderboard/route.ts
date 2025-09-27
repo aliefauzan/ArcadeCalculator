@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Papa from 'papaparse';
 import { scrapeProfile } from '../../../utils/profile-scraper';
-import { calculatePoints } from '../../../utils/scoring';
+import { calculatePoints, calculateTotalStats } from '../../../utils/scoring';
 import { getCsvHash, getFromCache, saveToCache, cleanExpiredCache } from '../../../utils/cache-manager';
 
 interface CsvRow {
@@ -100,23 +100,11 @@ export async function POST(request: Request) {
       console.log(`✅ MICRO: Completed batch ${batchNumber} (${batchResults.length} participants)`);
     }
 
-    // Calculate total stats
-    const totalArcadeBadges = finalLeaderboardData.reduce((sum, participant) => sum + participant.arcadeCount, 0);
-    const totalTriviaBadges = finalLeaderboardData.reduce((sum, participant) => sum + participant.triviaCount, 0);
-    const totalSkillBadges = finalLeaderboardData.reduce((sum, participant) => sum + participant.skillCount, 0);
-    const totalExtraSkillBadges = 0; // Note: extraskill is included in arcadeCount for display
-    const totalAllBadges = totalArcadeBadges + totalTriviaBadges + totalSkillBadges + totalExtraSkillBadges;
+    // Calculate total stats using competition period filtering
+    const totalStats = calculateTotalStats(finalLeaderboardData);
 
     // Sort by total score
     finalLeaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
-    
-    const totalStats = {
-      totalAllBadges,
-      totalArcadeBadges,
-      totalTriviaBadges,
-      totalSkillBadges,
-      totalExtraSkillBadges
-    };
 
     console.log(`🎉 MICRO: Processing complete! Processed ${finalLeaderboardData.length} participants.`);
 
