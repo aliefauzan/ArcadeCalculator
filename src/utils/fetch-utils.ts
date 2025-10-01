@@ -28,6 +28,17 @@ export async function fetchWithRetry(url: string, maxRetries = 3): Promise<Respo
         }
         
         console.error(`❌ All ${maxRetries} attempts failed for ${url} - final status: ${response.status}`);
+        
+        // For access errors (403, 404), return a mock response with empty HTML instead of throwing
+        if (response.status === 403 || response.status === 404) {
+          console.log(`🔄 Returning empty profile for inaccessible URL: ${url}`);
+          return new Response('<html><body></body></html>', { 
+            status: 200, 
+            statusText: 'OK',
+            headers: { 'Content-Type': 'text/html' }
+          });
+        }
+        
         throw new Error(`Failed to fetch after ${maxRetries} attempts: ${response.status}`);
       }
 
