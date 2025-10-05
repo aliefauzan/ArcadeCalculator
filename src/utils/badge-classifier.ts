@@ -3,11 +3,52 @@ import { skillBadgeNames } from './skill-badges';
 
 // Badge classification patterns - exactly matching the original route
 const PATTERNS = {
-  trivia: /Skills Boost Arcade Trivia July 2025 Week [1-4]|Skills Boost Arcade Trivia August 2025 Week [1-4]|Skills Boost Arcade Trivia September 2025 Week [1-4]|Skills Boost Arcade Trivia October 2025 Week [1-4]/i,
-  arcade: /Skills Boost Arcade Base Camp July 2025|Skills Boost Arcade Certification Zone July 2025|Level 1: Core Infrastructure and Security|Level 2: Modern Application Deployment|Level 3: Advanced App Operations|Skills Boost Arcade Base Camp August 2025|Skills Boost Arcade Base Camp September 2025|Skills Boost Arcade Certification Zone August 2025|Level 1: Application Design and Delivery|Level 2: Building with Cloud Tools|Level 3: Terraform Essentials|Level 1: Cloud Infrastructure and Data Foundation|Level 2: AI and Data Innovation on Google Cloud|Level 3: Developer Essentials|Skills Boost Arcade Certification Zone September 2025|Level 1: Scalable Systems|Level 2: Cloud Operations and Application Management|Level 3: Generative AI|Skills Boost Arcade Base Camp October 2025/i,
-  extraSkill: /extra|ekstrakill|Arcade ExtraSkillesTrail|ExtraSkillestrial!|ExtraSkillestrial|Future Ready Skills|Skills Scribble/i,
+  trivia: new RegExp([
+    'Skills Boost Arcade Trivia July 2025 Week [1-4]',
+    'Skills Boost Arcade Trivia August 2025 Week [1-4]',
+    'Skills Boost Arcade Trivia September 2025 Week [1-4]',
+    'Skills Boost Arcade Trivia October 2025 Week [1-4]'
+  ].join('|'), 'i'),
+  
+  arcade: new RegExp([
+    'Skills Boost Arcade Base Camp July 2025',
+    'Skills Boost Arcade Certification Zone July 2025',
+    'Level 1: Core Infrastructure and Security',
+    'Level 2: Modern Application Deployment',
+    'Level 3: Advanced App Operations',
+    'Skills Boost Arcade Base Camp August 2025',
+    'Skills Boost Arcade Base Camp September 2025',
+    'Skills Boost Arcade Certification Zone August 2025',
+    'Level 1: Application Design and Delivery',
+    'Level 2: Building with Cloud Tools',
+    'Level 3: Terraform Essentials',
+    'Level 1: Cloud Infrastructure and Data Foundation',
+    'Level 2: AI and Data Innovation on Google Cloud',
+    'Level 3: Developer Essentials',
+    'Skills Boost Arcade Certification Zone September 2025',
+    'Level 1: Scalable Systems',
+    'Level 2: Cloud Operations and Application Management',
+    'Level 3: Generative AI',
+    'Skills Boost Arcade Base Camp October 2025'
+  ].join('|'), 'i'),
+  
+  extraSkill: new RegExp([
+    'extra',
+    'ekstrakill',
+    'Arcade ExtraSkillesTrail',
+    'ExtraSkillestrial!',
+    'ExtraSkillestrial',
+    'Future Ready Skills',
+    'Skills Scribble'
+  ].join('|'), 'i'),
+  
   completion: /completion|completed|fundamentals|journey|preparing|introduction/i,
-  excluded: /Work Meets Play: Banking With Empathy|Work Meets Play: Faster Finance|Work Meets Play: Scaling Success Challenge/i, // These should not count as any badge type
+  
+  excluded: new RegExp([
+    'Work Meets Play: Banking With Empathy',
+    'Work Meets Play: Faster Finance',
+    'Work Meets Play: Scaling Success Challenge'
+  ].join('|'), 'i'), // These should not count as any badge type
 };
 
 export type BadgeType = 'skill' | 'arcade' | 'trivia' | 'extra' | null;
