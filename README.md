@@ -2,1272 +2,163 @@
 
 **🌐 Live Demo**: [https://arcade-calculator-280204705798.asia-southeast2.run.app/upload](https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
 
-### Screenshots
-
-![Arcade Calculator Demo](./image.png)
-![Arcade Calculator Demo1](./image1.png)
-
-A powerful Next.js web application featuring **micro-service architecture** designed to process Google Cloud Skills Boost CSV data and generate interactive leaderboards for arcade teams. This tool automatically scrapes participant profiles, calculates points based on achievements, and provides beautiful visualizations with PDF export capabilities.
-
-![Arcade Theme](https://img.shields.io/badge/Theme-Retro%20Arcade-yellow)
-![Next.js](https://img.shields.io/badge/Next.js-15.4.4-black)
-![React](https://img.shields.io/badge/React-19.1.0-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-38B2AC)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
-![Micro-Services](https://img.shields.io/badge/Architecture-Micro--Services-brightgreen)
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-
-## 📋 Table of Contents
-
-- [Overview](#-overview)
-- [Architecture](#️-architecture)
-- [Micro-Service Architecture](#️-micro-service-architecture)
-- [Features](#-features)
-- [Demo](#-demo)
-- [Quick Start](#-quick-start)
-- [Local Development](#-local-development)
-- [Docker Deployment](#-docker-deployment)
-- [Cloud Deployment](#️-cloud-deployment)
-- [API Documentation](#-api-documentation)
-- [Configuration](#️-configuration)
-- [Contributing](#-contributing)
-- [License](#-license)
-
-## 🌟 Overview
-
-The Arcade Team Calculator is an intelligent leaderboard management system built with **modern micro-service architecture** that transforms Google Cloud Skills Boost participant data into engaging, competitive visualizations. Unlike basic spreadsheet tools, this application provides real-time web scraping, automated scoring calculations, and professional presentation with retro arcade aesthetics.
-
-### What Makes Arcade Calculator Special?
-
-- 🏗️ **Micro-Service Architecture**: Modular, maintainable design with separated concerns and reusable utilities
-- 🚀 **Automated Data Processing**: Intelligent CSV parsing with multi-file support and data validation
-- 🌐 **Real-time Profile Scraping**: Dynamic extraction of achievement data from Google Cloud Skills Boost profiles
-- 🏆 **Smart Scoring System**: Sophisticated point calculation with milestone bonuses and achievement recognition
-- 🎨 **Retro Arcade Design**: Pixel-perfect 8-bit aesthetic with animated backgrounds and custom fonts
-- 📄 **Professional PDF Export**: High-quality, colored PDF reports with custom branding
-- 📱 **Responsive Experience**: Seamless operation across desktop and mobile devices
-- ☁️ **Cloud-Ready**: Fully containerized with Docker and deployable to multiple cloud platforms
-- ⚡ **Performance Optimized**: 71% code reduction with maintained functionality and improved maintainability
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│    Frontend     │    │   Backend API   │    │  External APIs  │
-│   (Next.js)     │◄──►│   (Next.js)     │◄──►│                 │
-│                 │    │                 │    │ • Google Cloud  │
-│ • React 19      │    │ • CSV Parser    │    │   Skills Boost  │
-│ • TypeScript    │    │ • Web Scraper   │    │ • Profile URLs  │
-│ • Tailwind CSS  │    │ • Score Engine  │    │ • Achievement   │
-│ • PDF Renderer  │    │ • Cache System  │    │   Data          │
-│ • Pixel UI      │    │ • API Routes    │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-        │                       │
-        │                       │
-        ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐
-│   Docker        │    │   Docker        │
-│   Container     │    │   Container     │
-│   (Production)  │    │   (Optional)    │
-└─────────────────┘    └─────────────────┘
-        │                       │
-        │                       │
-        ▼                       ▼
-┌─────────────────────────────────────────┐
-│         Cloud Deployment Options       │
-│                                         │
-│ • Vercel (Recommended)                  │
-│ • Google Cloud Platform                 │
-│ • Netlify                              │
-│ • Railway                              │
-│ • Docker Compose                       │
-└─────────────────────────────────────────┘
-```
-
-### Project Structure
-
-```
-arcadeteamcalculator/
-├── 📁 src/
-│   ├── 📁 app/                     # Next.js App Router
-│   │   ├── 📁 api/                 # Backend API routes
-│   │   │   ├── 📁 process-leaderboard/
-│   │   │   │   └── 📄 route.ts     # Main processing endpoint (139 lines)
-│   │   │   └── 📁 scrape/
-│   │   │       └── 📄 route.ts     # Profile scraping endpoint
-│   │   ├── 📁 upload/              # Main application pages
-│   │   │   ├── 📄 page.tsx         # Upload interface
-│   │   │   └── 📄 LeaderboardPDF.tsx # PDF generation
-│   │   ├── 📄 layout.tsx           # Root layout
-│   │   ├── 📄 page.tsx             # Home redirect
-│   │   └── 📄 globals.css          # Global styles
-│   ├── 📁 components/              # Reusable components
-│   │   └── 📄 PDFDownloadButton.tsx # PDF export component
-│   └── 📁 utils/                   # 🏗️ Micro-Service Utilities
-│       ├── 🔧 cache-manager.ts     # SHA256 caching + TTL management
-│       ├── 🌐 profile-scraper.ts   # Badge scraping orchestration
-│       ├── 🏷️ badge-classifier.ts  # Date filtering + excluded badges
-│       ├── 🔄 fetch-utils.ts       # Smart retry + exponential backoff
-│       ├── 🧮 scoring.ts           # Point calculation + milestones
-│       └── 📚 skill-badges.ts      # Skill badge database loader
-├── 📁 public/                      # Static assets
-│   └── 📁 fonts/                   # Custom pixel fonts
-│       └── 📁 Press_Start_2P/
-├── 🐳 Dockerfile                   # Container configuration
-├── ☁️ cloudbuild.yaml             # Google Cloud Build config
-├── 📄 package.json                 # Dependencies and scripts
-├── 📄 next.config.ts               # Next.js configuration
-├── 📄 tailwind.config.ts           # Tailwind CSS config
-├── 📄 tsconfig.json                # TypeScript configuration
-└── 📄 README.md                    # This file
-```
-
-### Data Flow Architecture
-
-```
-CSV Upload → Data Parsing → Profile Scraping → Date Filtering → Score Calculation → Leaderboard Display
-     ↓              ↓              ↓              ↓                ↓                    ↓
-File Validation → Error Check → Cache Check → Competition Period → Point Assignment → PDF Export
-     ↓              ↓              ↓         Filter (Jul 15-Sep 16)    ↓                    ↓
-Multi-file → Papa Parse → Micro-Service → Badge Classification → Dual Scoring System → React PDF
-Support         Library    Orchestration   (Date Range Aware)   (Base + Milestone)     Generation
-```
-
-### 🏗️ Micro-Service Data Flow
-
-```
-Main Route (139 lines)
-    ├── 🔧 cache-manager.ts ──── SHA256 Hash + 45min TTL
-    ├── 🌐 profile-scraper.ts ── Orchestrates Badge Processing  
-    │   ├── 🔄 fetch-utils.ts ── Smart Retry + Exponential Backoff
-    │   └── 🏷️ badge-classifier.ts ── Date Filter + Competition Period Logic
-    │       ├── 📅 Date Range Check (Jul 15 - Sep 16, 2025)
-    │       ├── 🎯 Dual Counting Logic (Base + Milestone Eligibility)
-    │       └── 📚 skill-badges.ts ── 93 Skill Badge Database
-    └── 🧮 scoring.ts ──────── Point Calculation + Milestone System
-        ├── ⚖️ Base Points (All Valid Badges)
-        └── 🏆 Milestone Points (Competition Period Only)
-```
-
-### Technology Stack
-
-#### Frontend Layer
-- **Framework**: Next.js 15.4.4 with App Router for modern React development
-- **UI Library**: React 19 with TypeScript for type-safe component development
-- **Styling**: Tailwind CSS 4 with custom pixel art components and animations
-- **PDF Generation**: @react-pdf/renderer for high-quality document export
-- **Typography**: Custom Press Start 2P pixel font for retro arcade aesthetics
-
-#### Backend Layer
-- **Runtime**: Next.js API Routes with **micro-service architecture** for serverless function optimization
-- **Data Processing**: Papa Parse for robust CSV parsing and validation
-- **Web Scraping**: Modular profile scraper with badge classification utilities
-- **Caching**: SHA256-based in-memory caching system with 45-minute TTL for performance optimization
-- **Error Handling**: Comprehensive error boundaries with smart retry logic and validation
-
-#### Infrastructure Layer
-- **Containerization**: Docker for consistent deployment across environments
-- **Build System**: Next.js optimized build with automatic code splitting
-- **Static Assets**: Optimized image and font serving with Next.js built-ins
-- **API Design**: RESTful architecture with JSON responses
-
-## 🏗️ Micro-Service Architecture
-
-### 📁 Micro-Service Structure
-
-```
-📁 Main API Route: route.ts (139 lines)
-├── ✅ Content-type compatibility (multipart/form-data + text/csv)
-├── ✅ CSV hash-based caching with 45-minute TTL  
-├── ✅ Batch processing (20 participants per batch)
-├── ✅ Error handling and logging
-
-📁 Utility Services: src/utils/ (6 modular services)
-├── 🔧 cache-manager.ts - SHA256 hash caching + TTL management
-├── 🌐 profile-scraper.ts - Badge scraping orchestration
-├── 🏷️ badge-classifier.ts - Date filtering + excluded badge patterns  
-├── 🔄 fetch-utils.ts - Smart retry with exponential backoff
-├── 🧮 scoring.ts - Point calculation + milestone logic  
-└── 📚 skill-badges.ts - Skill badge database (93 badges)
-```
-
-## ✨ Features
-
-### Core Functionality
-- **🏗️ Micro-Service Architecture**: Modern modular design with 71% code reduction while maintaining 100% functionality
-- **⏰ Automated Build Timestamps**: Live deployment tracking with automatic date, version, and time updates in top-right corner
-- **Multi-File CSV Processing**: Upload and process up to 2 CSV files simultaneously with intelligent data merging
-- **⚡ High-Performance Processing**: Optimized parallel badge processing with smart caching for maximum speed
-- **Real-time Profile Scraping**: Automated extraction of achievement data from Google Cloud Skills Boost profiles
-- **Dynamic Leaderboard Generation**: Real-time calculation and ranking with live updates
-- **Smart Caching System**: Efficient 45-minute TTL caching to minimize redundant API calls and improve performance
-
-### Cache Status Indicator
-
-Each uploaded CSV file now shows a per-file cache status indicator in the upload UI so users can immediately see whether the data is being processed, freshly generated, or served from cache:
-
-- PROCESSING... (yellow, pulsing) — shown immediately after upload while the server processes the file.
-- FRESH (blue) — data was freshly processed (not from cache).
-- CACHED (green) — data was returned from the cache for faster results.
-
-The indicator also shows the cache expiration time (for example: `(42 minutes)`).
-
-API responses include the following fields which the frontend uses to populate the indicator:
-
-- `cacheStatus`: `"HIT"` or `"MISS"` (or transitional `"PROCESSING"` state used on the frontend)
-- `cacheExpiresIn`: human-readable time until cache expiration (e.g., `"45 minutes"`)
-
-This provides clear, per-file feedback so users understand caching behavior at a glance.
-
-### Advanced Scoring Features
-- **� Competition Period Filtering**: Sophisticated date range filtering for official competition period (July 15 - September 16, 2025)
-- **🎯 Dual Badge Counting System**: Intelligent scoring logic where all badges count for base points, but only competition-period badges count for milestone advancement
-- **�🚀 Optimized Parallel Processing**: Revolutionary parallel badge classification system with:
-  - **Optimized Batch Processing**: Processes 20 participants per batch for maximum efficiency
-  - **Smart Image Dimension Logic**: Only checks image dimensions when text classification is uncertain (~80% fewer network requests)
-  - **Continuous Processing Speed**: No artificial inter-batch delays for maximum throughput
-  - **Real-time Performance Monitoring**: Live batch timing and speed tracking for transparent processing
-- **Enhanced Badge Classification System**: State-of-the-art badge detection using multiple validation methods:
-  - **Image Dimension Detection**: Identifies completion badges by analyzing image dimensions (1000×909 pixels)
-  - **Skill Badge Database Validation**: Cross-references against comprehensive skill.json database with 93+ verified skill badges
-  - **Keyword-Based Classification**: Advanced pattern matching for arcade, trivia, and extra badges
-  - **Fallback Detection Logic**: Multi-layered classification ensuring accurate badge categorization
-- **Intelligent Point Calculation**: Automated dual-tier scoring system with competition period awareness:
-  - **Base Points**: All earned badges count towards base score regardless of date
-  - **Milestone Eligibility**: Only badges earned during competition period (July 15 - September 16, 2025) count for milestone advancement
-  - Skill badges: 0.5 points each
-  - Extraskill badge: 2 points each
-  - Arcade games: 1 point each
-  - Trivia games: 1 point each
-  - Milestone bonuses: up to 28 points (based on competition-period badges only)
-- **Milestone Recognition System**: Four distinct achievement levels:
-  - 🥇 **ULTIMATE**: Highest tier with gradient pink-violet badge
-  - 🥈 **Level 3**: Galaxy Commander with yellow badge
-  - 🥉 **Level 2**: Space Pilot with purple badge
-  - 🏅 **Level 1**: Cadet with green badge
-- **Flexible Scoring Logic**: Easily configurable point values and milestone criteria
-
-### Visual & UX Features
-- **Retro Arcade Aesthetic**: Pixel-perfect 8-bit inspired design with custom animations
-- **⏰ Live Build Information**: Top-right corner displays automated build date, version, and deployment time
-- **🚀 Rocket-Themed Progress Bar**: Interactive animated progress indicator with flying rocket that follows batch processing in real-time
-- **Dynamic Backgrounds**: Animated starfield with floating pixel spaceships
-- **Custom Typography**: Press Start 2P pixel font for authentic retro gaming feel
-- **Color-coded Data**: Intuitive color system for different data types and achievements
-- **Interactive Elements**: Hover effects, loading animations, and smooth transitions
-- **Responsive Design**: Optimized for all screen sizes from mobile to desktop
-
-### Progress & Loading Experience
-- **🎯 Batch-Accurate Progress**: Progress bar synchronized with actual API batch processing (e.g., batch 4/6 = 67% progress)
-- **🚀 Animated Rocket Indicator**: Custom SVG rocket that travels along the progress bar, showing exact completion percentage
-- **⚡ Optimized Progress Timing**: Calibrated for current performance capabilities (~4 seconds per batch with 20-participant batches)
-- **🎨 Pixel Art Components**: Custom PixelRocket and ThemeRocket SVG components with retro gaming aesthetics
-- **📊 Smart Progress Calculation**: Intelligent estimation based on participant count and optimized batch size (20 participants per batch)
-- **✨ Smooth Transitions**: 800ms CSS transitions calibrated to match real processing speed
-
-### Competition Period Features
-- **📅 Smart Date Range Filtering**: Official competition period enforcement (July 15 - September 16, 2025)
-- **🎯 Milestone Final Results**: Post-competition UI shows "Final Results" instead of "Progress" for clarity
-- **📊 Competition-Period Statistics**: Badge statistics filtered to show only achievements earned during the official timeframe
-- **⚖️ Fair Scoring Logic**: Dual counting system ensures fairness - all badges contribute to base points, but milestone advancement requires competition-period participation
-- **ℹ️ Clear Period Indicators**: Visual indicators throughout the UI showing competition dates and explaining filtering logic
-
-### Export & Reporting
-- **Professional PDF Generation**: High-quality PDF reports with maintained color schemes
-- **Custom Branding**: Includes author information and social media links
-- **Print-ready Format**: Landscape orientation optimized for professional presentation
-- **Colored PDF Output**: Full color support in exported documents
-
-### Enhanced Badge Classification
-
-The Arcade Calculator uses a sophisticated multi-layer classification system inspired by the proven [Kalkulator-Arcade](https://github.com/shiwildy/Kalkulator-Arcade) methodology:
-
-#### Classification Flow
-
-```
-Badge Detection → Date Range Check → Text Classification → Smart Image Check → Database Lookup → Final Assignment
-```
-
-#### 📅 Date Filtering & Competition Period Logic
-
-The system implements sophisticated date-based filtering to ensure fair competition:
-
-##### Date Range Enforcement
-- **Minimum Date**: July 15, 2025 (badges before this date are excluded entirely)
-- **Maximum Date**: September 16, 2025 (for milestone eligibility)
-- **Dual Counting Logic**: 
-  - All valid badges (after min date) count for base points
-  - Only competition-period badges (between min-max dates) count for milestone advancement
-
-##### Competition Period Benefits
-- **Fair Play**: Ensures all participants compete within the same timeframe
-- **Milestone Integrity**: Milestone achievements based on competition-period performance only
-- **Base Score Preservation**: Pre-competition achievements still contribute to base scoring
-- **Clear Boundaries**: Transparent date indicators in UI and statistics
-
-#### 🚀 Performance Optimizations
-
-The system delivers **high-performance processing** with intelligent optimization strategies:
-
-##### 1. Parallel Processing Architecture
-- **Concurrent Badge Processing**: All badges within a batch are processed simultaneously using `Promise.all()`
-- **Optimized Batch Size**: Processes 20 participants per batch for maximum efficiency
-- **Continuous Processing**: No artificial delays, maintaining constant processing speed
-
-##### 2. Smart Image Dimension Logic
-- **Intelligent Analysis**: Only checks image dimensions when text classification is uncertain
-- **Reduced Network Requests**: ~80% fewer network requests through intelligent image analysis
-- **Performance Boost**: Significant speed improvements for profiles with many badges
-
-##### 3. Optimized Classification Flow
-```
-Text-Based Classification (Fast) → Database Lookup → Image Check (Only if needed) → Modal Fallback
-```
-
-**Priority Order**:
-1. **Extra badges** (highest priority, 2 points each)
-2. **Trivia badges** (keyword and pattern matching)
-3. **Arcade badges** (level-based and game patterns)
-4. **Completion badges** (text pattern filtering)
-5. **Skill badges** (database validation)
-6. **Image dimensions** (only for uncertain cases)
-7. **Modal dialog** (last resort fallback)
-
-##### 4. Performance Monitoring
-- **Real-time batch timing**: Track actual processing speed per batch
-- **Transparent logging**: Monitor performance metrics in console
-- **Calibrated progress**: Progress bar matches actual processing speed
-
-##### 5. Current Performance Metrics
-- **Batch Processing**: 20 participants per batch (optimized size)
-- **Processing Speed**: ~4 seconds per batch
-- **Smart Image Logic**: 60-80% fewer network calls
-- **Overall Performance**: **~15-25 seconds** for 115 participants
-
-**Real-World Impact**:
-- **Current Speed**: **~15-25 seconds** for 115 participants
-- **Scalability**: Performance benefits increase with larger datasets
-
-#### 1. Completion Badge Detection
-- **Primary Method**: Image dimension analysis (1000×909 or 240×218 pixels)
-- **Secondary Method**: Title pattern matching (`completion`, `fundamentals`, `journey`, etc.)
-- **Action**: Skip these badges from point calculation
-
-#### 2. Skill Badge Validation
-- **Database Source**: `skill-badges.json` with 93 verified Google Cloud skill badges
-- **Validation Method**: Exact title matching against official skill badge names
-- **Examples**: "Build a Data Warehouse with BigQuery", "Use Machine Learning APIs on Google Cloud"
-
-#### 3. Arcade & Trivia Classification
-- **Arcade Patterns**: Level-based badges, camp badges, work-meets-play series
-- **Trivia Patterns**: Weekly trivia challenges, specific date ranges
-- **Extra Skill Detection**: Special high-value badges worth 2 points each
-
-#### 4. Classification Accuracy
-- **Test Coverage**: 16/16 test cases passing (100% accuracy)
-- **Fallback Logic**: Unknown badges are excluded rather than misclassified
-- **Validation**: Cross-referenced with Kalkulator-Arcade proven methodology
-
-### Technical Features
-- **Full TypeScript Coverage**: Type-safe development with comprehensive error prevention
-- **API-First Architecture**: RESTful design for easy integration and extensibility
-- **Docker Containerization**: Complete containerization for easy deployment and scaling
-- **Cloud Platform Ready**: Optimized for deployment on Google Cloud, Vercel, Netlify, and more
-- **Performance Optimized**: Efficient caching, code splitting, and optimized assets
-
-## 🎯 Demo
-
-*The Arcade Calculator in action - featuring blazing-fast processing with optimized parallel badge classification, retro-themed leaderboard with colorful milestone badges, real-time scoring, and professional presentation. Perfect for analyzing competition results and historical achievement data.*
-
-### Main Interface Features
-
-- **⚡ High-Performance Processing**: Optimized parallel processing for fast CSV processing
-- **Intuitive Upload Interface**: Drag-and-drop CSV file upload with real-time progress indicators
-- **🚀 Rocket Progress Animation**: Live progress updates with animated rocket following actual batch completion
-- **Interactive Leaderboard**: Sortable, filterable results with detailed participant information
-- **Visual Feedback**: Loading animations and status indicators for all operations
-
-### Key Demo Highlights
-
-- **🔥 Optimized Performance**: Advanced speed improvements with smart caching and parallel processing
-- **Smart Data Processing**: Automatic CSV parsing with error detection and validation
-- **🚀 Real-time Batch Tracking**: Progress bar synchronized with actual API processing (batch 4/6 = 67%)
-- **Live Leaderboard Updates**: Real-time ranking updates as data is processed batch by batch
-- **Professional Presentation**: Clean, organized display of complex achievement data
-- **Export Functionality**: One-click PDF generation with full color preservation
-
-### Performance Showcase
-
-**Current Performance**:
-- 115 participants: **~15-25 seconds**
-- Parallel batch processing (20 participants/batch)
-- Smart image dimension logic (80% fewer network requests)
-- Continuous processing with no artificial delays
+![Arcade Theme](https://img.shields.io/badge/Theme-Retro%20Arcade-yellow) ![Next.js](https://img.shields.io/badge/Next.js-15.4.4-black) ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
+
+A Next.js web application with **micro-service architecture** that processes Google Cloud Skills Boost CSV data and generates interactive leaderboards with retro arcade aesthetics.
+
+## ✨ Key Features
+
+- **🏗️ Micro-Service Architecture**: Modular design with 6 utility services for optimal maintainability
+- **⚡ High-Performance Processing**: ~15-25 seconds for 115 participants with parallel batch processing
+- **🎯 Smart Competition Logic**: Dual scoring system with competition period filtering (July 15 - September 16, 2025)
+- **🎨 Retro Design**: Pixel-perfect 8-bit aesthetic with animated backgrounds and custom fonts
+- **📄 Professional PDF Export**: High-quality colored reports with full formatting preservation
+- **🔄 Smart Caching**: SHA256-based caching with 45-minute TTL for improved performance
+- **🛡️ Enhanced Error Handling**: Graceful handling of private profiles (403/404 errors)
 
 ## 🚀 Quick Start
 
-### Performance at a Glance
-
-| Metric | Current Performance | Details |
-|--------|-------------------|-------------|
-| **Batch Size** | 20 participants | 🔥 **Optimized batching** |
-| **Processing Time** | ~15-25 seconds (115 participants) | ⚡ **Lightning fast** |
-| **Image Downloads** | Only uncertain cases | 🧠 **Smart logic** |
-| **Inter-batch Delays** | None | 🚫 **Continuous processing** |
-| **Badge Processing** | Parallel (concurrent) | 🚀 **Maximum efficiency** |
-| **Progress Updates** | Real batch tracking | 🎯 **Accurate monitoring** |
-
-### Prerequisites
-
-- **Node.js** 18+ (LTS recommended)
-- **npm**, **yarn**, **pnpm**, or **bun** package manager
-- **Docker** (optional, for containerized deployment)
-- **Git** for version control
-
-### 1-Minute Setup
-
 ```bash
-# Clone the repository
+# Clone and setup
 git clone https://github.com/aliefauzan/ArcadeCalculator.git
 cd ArcadeCalculator
-
-# Install dependencies
 npm install
 
-# Start development server
+# Start development
 npm run dev
-
-# Visit http://localhost:3000 and start calculating scores! 🎉
+# Visit http://localhost:3000
 ```
 
-## 💻 Local Development
+## 🏗️ Architecture
 
-### Standard Setup
+### Project Structure
+```
+src/
+├── app/
+│   ├── api/process-leaderboard/route.ts  # Main processing endpoint
+│   ├── api/scrape/route.ts              # Profile scraping
+│   └── upload/                          # UI components
+└── utils/                               # Micro-services
+    ├── cache-manager.ts                 # SHA256 caching + TTL
+    ├── profile-scraper.ts               # Badge scraping orchestration
+    ├── badge-classifier.ts              # Date filtering + badge classification
+    ├── fetch-utils.ts                   # Smart retry + exponential backoff
+    ├── scoring.ts                       # Point calculation + milestones
+    └── skill-badges.ts                  # 93 skill badge database
+```
 
-1. **Clone and Navigate**
-   ```bash
-   git clone https://github.com/aliefauzan/ArcadeCalculator.git
-   cd ArcadeCalculator
-   ```
+### Data Flow
+```
+CSV Upload → Parsing → Profile Scraping → Badge Classification → Scoring → Leaderboard Display
+     ↓           ↓            ↓                   ↓               ↓             ↓
+Cache Check → Validation → Batch Processing → Competition Filter → Milestones → PDF Export
+```
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   # or
-   bun install
-   ```
+## 🎯 Competition System
 
-3. **Start Development Server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   # or
-   bun dev
-   ```
+### Scoring Rules
+- **Skill badges**: 0.5 points each
+- **Extra badges**: 2 points each  
+- **Arcade games**: 1 point each
+- **Trivia games**: 1 point each
+- **Milestone bonuses**: Up to 28 points
 
-4. **Access Application**
-   - Open [http://localhost:3000](http://localhost:3000) in your browser
-   - The app will automatically redirect to the upload interface
+### Competition Period *(Completed)*
+- **Period**: July 15 - September 16, 2025
+- **Logic**: All badges count for base points, only competition-period badges counted for milestones
+- **Milestones**: 🥇 ULTIMATE → 🥈 Level 3 → 🥉 Level 2 → 🏅 Level 1
 
-### Development Workflow
+## 📡 API Endpoints
 
-1. **Frontend Development**
-   - Main application: `src/app/upload/page.tsx`
-   - Components: `src/components/`
-   - Styles: `src/app/globals.css` + Tailwind classes
-   - PDF components: `src/app/upload/LeaderboardPDF.tsx`
+### Process CSV Data
+```http
+POST /api/process-leaderboard
+Content-Type: text/csv or multipart/form-data
 
-2. **Backend Development**
-   - API routes: `src/app/api/`
-   - Main processor: `src/app/api/process-leaderboard/route.ts`
-   - Scraping service: `src/app/api/scrape/route.ts`
-   - Date filtering: `src/utils/badge-classifier.ts` (competition period logic)
+Response:
+{
+  "cacheStatus": "HIT|MISS",
+  "cacheExpiresIn": "45 minutes",
+  "leaderboard": [...],
+  "totalStats": {...}
+}
+```
 
-3. **Build & Deployment**
-   ```bash
-   # Development with auto-updating timestamps
-   npm run dev
-   
-   # Build with automatic timestamp generation
-   npm run build  # Updates BUILD_DATE, BUILD_VERSION, BUILD_TIME
-   
-   # Production deployment
-   npm run start
-   ```
+### Individual Profile Scraping
+```http
+POST /api/scrape
+Content-Type: application/json
+Body: {"url": "profile-url"}
+```
 
-4. **Testing**
-   ```bash
-   # Lint code
-   npm run lint
-   
-   # Build for production (test)
-   npm run build
-   
-   # Test CSV upload with sample data
-   # Use the web interface at http://localhost:3000
-   ```
+## 🐳 Deployment
 
-### Building for Production
-
+### Docker
 ```bash
-# Create optimized production build
-npm run build
-
-# Start production server
-npm run start
-
-# Access at http://localhost:3000
+docker build -t arcade-calculator .
+docker run -p 3000:3000 arcade-calculator
 ```
-
-## 🐳 Docker Deployment
-
-### Quick Docker Setup
-
-1. **Build Docker Image**
-   ```bash
-   docker build -t arcade-calculator .
-   ```
-
-2. **Run Container**
-   ```bash
-   docker run -p 3000:3000 arcade-calculator
-   ```
-
-3. **Access Application**
-   - Open [http://localhost:3000](http://localhost:3000)
-
-### Docker Compose Deployment
-
-Create `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-
-services:
-  arcade-calculator:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-    volumes:
-      - ./logs:/app/logs  # Optional: for log persistence
-
-  # Optional: Add reverse proxy
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - arcade-calculator
-    restart: unless-stopped
-```
-
-Run with Docker Compose:
-
-```bash
-# Start services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Production Docker Configuration
-
-For production deployments, consider this optimized `Dockerfile`:
-
-```dockerfile
-# Multi-stage build for optimized production image
-FROM node:18-alpine AS deps
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:18-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-EXPOSE 3000
-ENV PORT 3000
-
-CMD ["node", "server.js"]
-```
-
-### Docker Best Practices
-
-1. **Environment Variables**
-   ```bash
-   # Create .env file for Docker
-   echo "NODE_ENV=production" > .env.docker
-   
-   # Run with environment file
-   docker run --env-file .env.docker -p 3000:3000 arcade-calculator
-   ```
-
-2. **Volume Mounting**
-   ```bash
-   # Mount logs directory
-   docker run -v ./logs:/app/logs -p 3000:3000 arcade-calculator
-   ```
-
-3. **Health Checks**
-   ```dockerfile
-   # Add to Dockerfile
-   HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-     CMD curl -f http://localhost:3000/ || exit 1
-   ```
-
-## 📋 How to Use
-
-### Step 1: Prepare Your CSV Data
-- Export participant data from Google Cloud Skills Boost
-- Ensure CSV contains the required columns:
-  - `Nama Peserta` (Participant Name)
-  - `Email Peserta` (Participant Email)
-  - `URL Profil Google Cloud Skills Boost` (Profile URL)
-  - Other relevant fields for tracking achievements
-
-### Step 2: Upload CSV Files
-1. Click on the file upload area
-2. Select up to 2 CSV files
-3. Choose which files to include in the calculation
-4. Wait for processing to complete
-
-### Step 3: View Results
-- Automatic leaderboard generation with real-time scoring
-- Color-coded milestones and achievement indicators
-- Sortable rankings with detailed breakdowns
-
-### Step 4: Export PDF (Optional)
-- Click "DOWNLOAD PDF" to generate a printable report
-- PDF includes all colors and formatting from the web interface
-
-## ☁️ Cloud Deployment
 
 ### Vercel (Recommended)
-
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/aliefauzan/ArcadeCalculator)
 
-#### Quick Vercel Deployment
-
-1. **One-Click Deploy**
-   - Click the "Deploy with Vercel" button above
-   - Connect your GitHub account
-   - Fork the repository
-   - Deploy automatically
-
-2. **Manual Vercel Deployment**
-   ```bash
-   # Install Vercel CLI
-   npm install -g vercel
-   
-   # Deploy to Vercel
-   vercel --prod
-   ```
-
-3. **Environment Configuration**
-   - No additional environment variables required
-   - Automatic optimizations applied
-   - Global CDN distribution included
-
-### Google Cloud Platform
-
-#### Prerequisites
-
-1. **Google Cloud Setup**
-   ```bash
-   # Install Google Cloud CLI
-   # Visit: https://cloud.google.com/sdk/docs/install
-   
-   # Authenticate
-   gcloud auth login
-   gcloud config set project YOUR_PROJECT_ID
-   ```
-
-2. **Enable Required APIs**
-   ```bash
-   gcloud services enable run.googleapis.com
-   gcloud services enable cloudbuild.googleapis.com
-   gcloud services enable containerregistry.googleapis.com
-   ```
-
-#### Cloud Run Deployment
-
-1. **Build and Deploy**
-   ```bash
-   # Build and submit to Cloud Build
-   gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/arcade-calculator
-   
-   # Deploy to Cloud Run
-   gcloud run deploy arcade-calculator \
-     --image gcr.io/YOUR_PROJECT_ID/arcade-calculator \
-     --platform managed \
-     --region us-central1 \
-     --allow-unauthenticated
-   ```
-
-2. **Using Cloud Build Configuration**
-   
-   Create `cloudbuild.yaml`:
-   ```yaml
-   steps:
-   # Build the container image
-   - name: 'gcr.io/cloud-builders/docker'
-     args: ['build', '-t', 'gcr.io/$PROJECT_ID/arcade-calculator', '.']
-   
-   # Push the container image to Container Registry
-   - name: 'gcr.io/cloud-builders/docker'
-     args: ['push', 'gcr.io/$PROJECT_ID/arcade-calculator']
-   
-   # Deploy container image to Cloud Run
-   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-     entrypoint: gcloud
-     args:
-     - 'run'
-     - 'deploy'
-     - 'arcade-calculator'
-     - '--image'
-     - 'gcr.io/$PROJECT_ID/arcade-calculator'
-     - '--region'
-     - 'us-central1'
-     - '--platform'
-     - 'managed'
-     - '--allow-unauthenticated'
-   
-   images:
-   - 'gcr.io/$PROJECT_ID/arcade-calculator'
-   ```
-
-   Deploy with:
-   ```bash
-   gcloud builds submit --config cloudbuild.yaml .
-   ```
-
-### Alternative Deployment Options
-
-#### Netlify
-
-1. **Netlify CLI Deployment**
-   ```bash
-   # Install Netlify CLI
-   npm install -g netlify-cli
-   
-   # Build the project
-   npm run build
-   
-   # Deploy to Netlify
-   netlify deploy --prod --dir=out
-   ```
-
-2. **Netlify Git Integration**
-   - Connect repository to Netlify
-   - Set build command: `npm run build`
-   - Set publish directory: `out`
-   - Enable automatic deployments
-
-#### Railway
-
-1. **Railway CLI Deployment**
-   ```bash
-   # Install Railway CLI
-   npm install -g @railway/cli
-   
-   # Login and deploy
-   railway login
-   railway link
-   railway up
-   ```
-
-2. **Railway Git Integration**
-   - Connect GitHub repository
-   - Automatic deployments on push
-   - Built-in domain and SSL
-
-#### AWS (Amazon Web Services)
-
-1. **AWS Amplify**
-   ```bash
-   # Install Amplify CLI
-   npm install -g @aws-amplify/cli
-   
-   # Initialize and deploy
-   amplify init
-   amplify add hosting
-   amplify publish
-   ```
-
-2. **AWS ECS with Fargate**
-   ```bash
-   # Build and push to ECR
-   aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin YOUR_ECR_URI
-   docker build -t arcade-calculator .
-   docker tag arcade-calculator:latest YOUR_ECR_URI:latest
-   docker push YOUR_ECR_URI:latest
-   ```
-
-#### Self-Hosted (VPS)
-
-1. **Docker Deployment**
-   ```bash
-   # On your server
-   git clone https://github.com/aliefauzan/ArcadeCalculator.git
-   cd ArcadeCalculator
-   
-   # Build and run
-   docker build -t arcade-calculator .
-   docker run -d -p 3000:3000 --name arcade-app arcade-calculator
-   ```
-
-2. **PM2 Process Manager**
-   ```bash
-   # Install PM2
-   npm install -g pm2
-   
-   # Build the project
-   npm run build
-   
-   # Start with PM2
-   pm2 start npm --name "arcade-calculator" -- start
-   pm2 startup
-   pm2 save
-   ```
-
-3. **Nginx Reverse Proxy**
-   ```nginx
-   server {
-       listen 80;
-       server_name your-domain.com;
-       
-       location / {
-           proxy_pass http://localhost:3000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-           proxy_cache_bypass $http_upgrade;
-       }
-   }
-   ```
-
-### Deployment Checklist
-
-- [ ] Choose deployment platform
-- [ ] Configure custom domain (optional)
-- [ ] Set up SSL certificate
-- [ ] Configure monitoring/logging
-- [ ] Set up automated backups
-- [ ] Test application functionality
-- [ ] Configure CDN (if applicable)
-- [ ] Set up continuous deployment
-
-## � API Documentation
-
-### Base URL
-
-- **Local Development**: `http://localhost:3000`
-- **Production**: `https://your-domain.com`
-
-### 🏗️ Micro-Service API Endpoints
-
-#### Process Leaderboard Data
-
-**Endpoint**: `POST /api/process-leaderboard`
-
-**Description**: Processes uploaded CSV data using micro-service architecture, with intelligent caching, profile scraping, and leaderboard calculations.
-
-**Features**:
-- ✅ **Smart Caching**: SHA256-based cache with 45-minute TTL
-- ✅ **Batch Processing**: Optimized 20-participant batches  
-- ✅ **Content-Type Support**: Both `text/csv` and `multipart/form-data`
-- ✅ **Micro-Service Design**: Modular utilities for maintainability
-
-**Content-Type**: `text/csv` or `multipart/form-data`
-
-**Request Body**:
-```
-# For CSV text
-Raw CSV content as text
-
-# For form data
-csvFile: File upload(s)
-```
-
-**Response Format**:
-```json
-{
-  "cacheStatus": "HIT | MISS",
-  "cacheExpiresIn": "45 minutes",
-  "leaderboard": [
-    {
-      "nama": "Participant Name",
-      "basePoints": 41.0,
-      "totalPoints": 66.0,
-      "milestone": "ULTIMATE MASTER",
-      "skillCount": 46,
-      "arcadeCount": 10, 
-      "triviaCount": 8,
-      "bonusPoints": 25
-    }
-  ],
-  "totalStats": {
-    "totalAllBadges": 487,
-    "totalArcadeBadges": 85,
-    "totalTriviaBadges": 67,
-    "totalSkillBadges": 335,
-    "totalExtraSkillBadges": 0
-  }
-}
-```
-
-#### Scrape Profile Data
-
-**Endpoint**: `POST /api/scrape`
-
-**Description**: Scrapes individual Google Cloud Skills Boost profile for achievement data.
-
-**Content-Type**: `application/json`
-
-**Request Body**:
-```json
-{
-  "url": "https://www.cloudskillsboost.google/public_profiles/profile-id"
-}
-```
-
-**Response Format**:
-```json
-{
-  "skillBadges": 46,
-  "arcadeGames": 10,
-  "triviaGames": 8,
-  "milestone": "ULTIMATE MASTER",
-  "details": {
-    "skillBadgeNames": ["Badge 1", "Badge 2"],
-    "arcadeGameNames": ["Game 1", "Game 2"],
-    "triviaGameNames": ["Trivia 1", "Trivia 2"]
-  }
-}
-```
-
-### Example Requests
-
-#### Process CSV Data
-
+### Google Cloud Run
 ```bash
-# Upload CSV file
-curl -X POST http://localhost:3000/api/process-leaderboard \
-  -H "Content-Type: text/csv" \
-  -d @participants.csv
+gcloud builds submit --tag gcr.io/PROJECT_ID/arcade-calculator
+gcloud run deploy --image gcr.io/PROJECT_ID/arcade-calculator --allow-unauthenticated
 ```
 
-```javascript
-// JavaScript fetch example
-const csvData = "Nama Peserta,Email Peserta,URL Profil Google Cloud Skills Boost\nJohn Doe,john@example.com,https://profile-url";
+## 🛠️ Configuration
 
-fetch('/api/process-leaderboard', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'text/csv'
-  },
-  body: csvData
-})
-.then(response => response.json())
-.then(data => console.log(data));
-```
-
-#### Scrape Individual Profile
-
-```bash
-# Scrape single profile
-curl -X POST http://localhost:3000/api/scrape \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://www.cloudskillsboost.google/public_profiles/example"}'
-```
-
-```javascript
-// JavaScript fetch example
-fetch('/api/scrape', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    url: 'https://www.cloudskillsboost.google/public_profiles/example'
-  })
-})
-.then(response => response.json())
-.then(data => console.log(data));
-```
-
-### Error Handling
-
-**Error Response Format**:
-```json
-{
-  "error": "Error message description",
-  "details": "Additional error context",
-  "status": 400
-}
-```
-
-**Common Error Codes**:
-
-- `400 Bad Request`: Invalid CSV format or missing required fields
-- `404 Not Found`: Profile URL not accessible or invalid
-- `429 Too Many Requests`: Rate limiting applied
-- `500 Internal Server Error`: Server processing error
-- `503 Service Unavailable`: External service (Google Cloud Skills Boost) unavailable
-
-### Rate Limiting & Performance
-
-The API implements intelligent optimization strategies for maximum performance:
-
-#### Performance Optimizations
-- **🚀 Parallel Batch Processing**: Processes 20 participants per batch with concurrent badge classification
-- **Smart Image Logic**: Only downloads image dimensions when text classification is uncertain (~80% fewer network requests)  
-- **Continuous Processing**: No artificial processing delays for maximum speed
-- **Image Dimension Caching**: In-memory caching prevents redundant image downloads
-- **Real-time Monitoring**: Live batch timing and performance tracking
-
-#### Processing Performance
-- **Batch Size**: 20 participants per batch (optimized)
-- **Parallel Processing**: All badges within a batch processed simultaneously
-- **Expected Speed**: ~4 seconds per batch
-- **Scaling**: Performance benefits increase with larger datasets
-
-#### Rate Limiting Strategy
-- **Batch Processing**: Processes participants in optimized batches of 20
-- **Intelligent Delays**: Only applies delays when necessary for external service stability
-- **Retry Logic**: Automatic retry with exponential backoff for failed requests
-- **Caching**: Results cached to minimize redundant requests and improve speed
-
-### CSV Format Requirements
-
-**Required Columns**:
+### CSV Requirements
 - `Nama Peserta`: Participant name
-- `Email Peserta`: Participant email
+- `Email Peserta`: Participant email  
 - `URL Profil Google Cloud Skills Boost`: Profile URL
 
-**Optional Columns**:
-- `Nomor HP Peserta`: Phone number
-- `Status URL Profil`: Profile status
-- `Status Redeem Kode Akses`: Redemption status
-- `Milestone yang Diselesaikan`: Completed milestone
-- Additional achievement tracking columns
+### Environment Variables
+Auto-generated build timestamps:
+- `BUILD_DATE`, `BUILD_VERSION`, `BUILD_TIME` (updated on each build)
 
-**Example CSV Structure**:
-```csv
-Nama Peserta,Email Peserta,URL Profil Google Cloud Skills Boost
-John Doe,john@example.com,https://www.cloudskillsboost.google/public_profiles/12345
-Jane Smith,jane@example.com,https://www.cloudskillsboost.google/public_profiles/67890
-```
-
-## ⚙️ Configuration
-
-### Build-Time Environment Variables
-
-The application automatically generates build information that appears in the top-right corner:
-
-```typescript
-// next.config.ts - Automatically configured
-env: {
-  BUILD_DATE: new Date().toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  }), // e.g., "Sep 21, 2025"
-  BUILD_VERSION: packageJson.version, // e.g., "0.1.0"
-  BUILD_TIME: new Date().toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  }), // e.g., "02:30 PM"
-}
-```
-
-**Automatic Updates**: These variables update automatically every time you run `npm run build`, ensuring users always see accurate deployment information.
-
-### Runtime Environment Variables
-Create a `.env.local` file in the root directory:
-
-```env
-# Add any environment variables here
-# NEXT_PUBLIC_APP_URL=https://your-domain.com
-```
-
-### Customization
-
-#### Styling
-- Modify `src/app/globals.css` for global styles
-- Update `tailwind.config.ts` for custom theme configuration
-- Edit component styles in individual `.tsx` files
-
-#### Scoring Logic
-- Adjust point calculations in `src/app/api/process-leaderboard/route.ts`
-- Modify milestone thresholds and bonuses as needed
-
-#### PDF Styling
-- Customize PDF appearance in `src/app/upload/LeaderboardPDF.tsx`
-- Update colors, fonts, and layout to match your branding
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these guidelines to ensure a smooth collaboration process.
-
-### Getting Started
-
-1. **Fork** the repository
-2. **Create** a feature branch
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make** your changes
-4. **Test** thoroughly
-5. **Submit** a pull request
-
-### Development Guidelines
-
-#### Code Style
-
-- **Backend**: Follow Node.js and Next.js best practices
-- **Frontend**: Use TypeScript and React hooks
-- **Styling**: Tailwind CSS utility classes with consistent naming
-- **Formatting**: ESLint configuration included
-
-#### Commit Convention
-
-```
-feat: add new scoring algorithm
-fix: resolve PDF export timeout
-docs: update deployment guide
-style: improve mobile responsiveness
-refactor: optimize scraping service
-test: add unit tests for scoring logic
-```
-
-#### Testing
+## 🔧 Development
 
 ```bash
-# Lint code
-npm run lint
-
-# Build test
-npm run build
-
-# Test the application manually
+# Development
 npm run dev
-# Visit http://localhost:3000 and test CSV upload
+
+# Production build
+npm run build
+npm run start
+
+# Linting
+npm run lint
 ```
 
-### Issue Reporting
+## 📈 Performance
 
-When reporting issues, please include:
+| Metric | Performance |
+|--------|-------------|
+| **Processing Time** | ~15-25 seconds (115 participants) |
+| **Batch Size** | 20 participants (optimized) |
+| **Network Efficiency** | 80% fewer requests with smart image logic |
+| **Caching** | 45-minute TTL with SHA256 hashing |
 
-- **Environment details** (OS, Node.js version, browser)
-- **Steps to reproduce** the issue
-- **Expected vs actual behavior**
-- **Screenshots** (for UI issues)
-- **Error logs** (if applicable)
-- **CSV sample** (if data-related, remove sensitive information)
+## 🎨 Tech Stack
 
-### Feature Requests
-
-For new features, please:
-
-1. **Check existing issues** first
-2. **Describe the use case** clearly
-3. **Provide implementation ideas** if possible
-4. **Consider backward compatibility**
-5. **Include mockups** for UI changes
-
-### Pull Request Process
-
-1. **Update documentation** if needed
-2. **Add tests** for new functionality
-3. **Ensure all checks pass**
-4. **Request review** from maintainers
-5. **Address feedback** promptly
+- **Frontend**: Next.js 15.4.4, React 19, TypeScript, Tailwind CSS 4
+- **Backend**: Next.js API Routes, Papa Parse, Cheerio
+- **PDF**: @react-pdf/renderer
+- **Deploy**: Docker, Vercel, Google Cloud
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 Alief Fauzan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-## 🙏 Acknowledgments
-
-- **Google Cloud Skills Boost** for providing the platform that inspired this tool
-- **Papa Parse** for excellent CSV parsing capabilities
-- **React PDF** for high-quality document generation
-- **Cheerio** for robust web scraping functionality
-- **Next.js & React** for the amazing development framework
-- **Tailwind CSS** for the utility-first styling approach
-- **Press Start 2P** font for authentic retro gaming aesthetics
-- **Open Source Community** for the incredible tools and libraries
-
-## 🔗 Links
-
-- **Repository**: [GitHub](https://github.com/aliefauzan/ArcadeCalculator)
-- **Issues**: [GitHub Issues](https://github.com/aliefauzan/ArcadeCalculator/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/aliefauzan/ArcadeCalculator/discussions)
-- **Author**: [@aliefauzan](https://github.com/aliefauzan)
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## 👨‍💻 Author
 
 **Alief Fauzan**
-- 🌐 **LinkedIn**: [@alief-fauzan1](https://www.linkedin.com/in/alief-fauzan1/)
-- 🐙 **GitHub**: [@aliefauzan](https://github.com/aliefauzan)
+- 🌐 [LinkedIn](https://www.linkedin.com/in/alief-fauzan1/)
+- 🐙 [GitHub](https://github.com/aliefauzan)
+
+---
+
+*A powerful, performance-optimized tool for managing Google Cloud Skills Boost competitions with retro arcade style!* 🎮
