@@ -7,12 +7,14 @@ export interface BadgeCount {
   arcadeBadgeCount: number;
   triviaBadgeCount: number;
   extraSkillBadgeCount: number;
+  premiumExtraBadgeCount: number;
   // New: Separate counts for milestone-eligible badges
   milestoneEligible: {
     skillBadgeCount: number;
     arcadeBadgeCount: number;
     triviaBadgeCount: number;
     extraSkillBadgeCount: number;
+    premiumExtraBadgeCount: number;
   };
 }
 
@@ -23,11 +25,13 @@ export async function scrapeProfile(url: string): Promise<BadgeCount> {
       arcadeBadgeCount: 0, 
       triviaBadgeCount: 0, 
       extraSkillBadgeCount: 0,
+      premiumExtraBadgeCount: 0,
       milestoneEligible: {
         skillBadgeCount: 0,
         arcadeBadgeCount: 0,
         triviaBadgeCount: 0,
-        extraSkillBadgeCount: 0
+        extraSkillBadgeCount: 0,
+        premiumExtraBadgeCount: 0
       }
     };
   }
@@ -48,11 +52,13 @@ export async function scrapeProfile(url: string): Promise<BadgeCount> {
       arcadeBadgeCount: 0, 
       triviaBadgeCount: 0, 
       extraSkillBadgeCount: 0,
+      premiumExtraBadgeCount: 0,
       milestoneEligible: {
         skillBadgeCount: 0,
         arcadeBadgeCount: 0,
         triviaBadgeCount: 0,
-        extraSkillBadgeCount: 0
+        extraSkillBadgeCount: 0,
+        premiumExtraBadgeCount: 0
       }
     };
     
@@ -60,6 +66,10 @@ export async function scrapeProfile(url: string): Promise<BadgeCount> {
       if (result.type === 'trivia') {
         counts.triviaBadgeCount++;
         if (result.countsForMilestone) counts.milestoneEligible.triviaBadgeCount++;
+      }
+      else if (result.type === 'premiumExtra') {
+        counts.premiumExtraBadgeCount++;
+        if (result.countsForMilestone) counts.milestoneEligible.premiumExtraBadgeCount++;
       }
       else if (result.type === 'extra') {
         counts.extraSkillBadgeCount++;
@@ -83,11 +93,13 @@ export async function scrapeProfile(url: string): Promise<BadgeCount> {
       arcadeBadgeCount: 0, 
       triviaBadgeCount: 0, 
       extraSkillBadgeCount: 0,
+      premiumExtraBadgeCount: 0,
       milestoneEligible: {
         skillBadgeCount: 0,
         arcadeBadgeCount: 0,
         triviaBadgeCount: 0,
-        extraSkillBadgeCount: 0
+        extraSkillBadgeCount: 0,
+        premiumExtraBadgeCount: 0
       }
     };
   }
