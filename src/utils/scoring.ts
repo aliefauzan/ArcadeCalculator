@@ -22,22 +22,23 @@ export interface ParticipantData {
 }
 
 export function calculatePoints(badgeCount: BadgeCount) {
-  const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount, milestoneEligible } = badgeCount;
+  const { skillBadgeCount, arcadeBadgeCount, triviaBadgeCount, extraSkillBadgeCount, premiumExtraBadgeCount, milestoneEligible } = badgeCount;
   
   // Calculate base points using ALL badges (regardless of date)
   const arcadePoints = arcadeBadgeCount * 1.0;
   const triviaPoints = triviaBadgeCount * 1.0;
   const skillPoints = skillBadgeCount * 0.5;
   const extraSkillPoints = extraSkillBadgeCount * 2.0;
-  const basePoints = arcadePoints + triviaPoints + skillPoints + extraSkillPoints;
+  const premiumExtraPoints = premiumExtraBadgeCount * 3.0;
+  const basePoints = arcadePoints + triviaPoints + skillPoints + extraSkillPoints + premiumExtraPoints;
 
   // For milestone calculation, use only milestone-eligible badges
-  const milestoneArcadeCount = milestoneEligible.arcadeBadgeCount + milestoneEligible.extraSkillBadgeCount;
+  const milestoneArcadeCount = milestoneEligible.arcadeBadgeCount + milestoneEligible.extraSkillBadgeCount + milestoneEligible.premiumExtraBadgeCount;
   const milestoneTriviaCount = milestoneEligible.triviaBadgeCount;
   const milestoneSkillCount = milestoneEligible.skillBadgeCount;
   
-  // For display purposes, combine arcade + extraskill counts (using all badges)
-  const displayArcadeCount = arcadeBadgeCount + extraSkillBadgeCount;
+  // For display purposes, combine arcade + extraskill + premium extra counts (using all badges)
+  const displayArcadeCount = arcadeBadgeCount + extraSkillBadgeCount + premiumExtraBadgeCount;
   const displayTriviaCount = triviaBadgeCount;
   const displaySkillCount = skillBadgeCount;
   
@@ -75,9 +76,9 @@ export function calculatePoints(badgeCount: BadgeCount) {
     // Add milestone-eligible counts for statistics
     validStatsContribution: {
       validSkillCount: milestoneSkillCount,
-      validArcadeCount: milestoneEligible.arcadeBadgeCount + milestoneEligible.extraSkillBadgeCount, // Include both arcade and extra for display
+      validArcadeCount: milestoneEligible.arcadeBadgeCount + milestoneEligible.extraSkillBadgeCount + milestoneEligible.premiumExtraBadgeCount, // Include arcade, extra, and premium extra for display
       validTriviaCount: milestoneTriviaCount,
-      validExtraSkillCount: milestoneEligible.extraSkillBadgeCount
+      validExtraSkillCount: milestoneEligible.extraSkillBadgeCount + milestoneEligible.premiumExtraBadgeCount
     }
   };
 }
