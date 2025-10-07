@@ -42,6 +42,11 @@ const PATTERNS = {
     'Skills Scribble'
   ].join('|'), 'i'),
   
+  premiumExtra: new RegExp([
+    'Diwali Dialogues',
+    'Lights & Logic'
+  ].join('|'), 'i'),
+  
   completion: /completion|completed|fundamentals|journey|preparing|introduction/i,
   
   excluded: new RegExp([
@@ -51,7 +56,7 @@ const PATTERNS = {
   ].join('|'), 'i'), // These should not count as any badge type
 };
 
-export type BadgeType = 'skill' | 'arcade' | 'trivia' | 'extra' | null;
+export type BadgeType = 'skill' | 'arcade' | 'trivia' | 'extra' | 'premiumExtra' | null;
 
 export interface BadgeClassificationResult {
   type: BadgeType;
@@ -95,8 +100,12 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
     return { type: null, countsForMilestone: false };
   }
 
-  // Check for extra badges first (highest priority)
-  if (PATTERNS.extraSkill.test(badgeTitle)) {
+  // Check for premium extra badges first (highest priority - 3 points)
+  if (PATTERNS.premiumExtra.test(badgeTitle)) {
+    return { type: 'premiumExtra', countsForMilestone };
+  }
+  // Check for regular extra badges (2 points)
+  else if (PATTERNS.extraSkill.test(badgeTitle)) {
     return { type: 'extra', countsForMilestone };
   }
   // Check for trivia badges
