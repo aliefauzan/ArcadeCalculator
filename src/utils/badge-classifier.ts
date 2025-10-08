@@ -11,24 +11,13 @@ const PATTERNS = {
   ].join('|'), 'i'),
   
   arcade: new RegExp([
+    'Level [1-3]:',
     'Skills Boost Arcade Base Camp July 2025',
     'Skills Boost Arcade Certification Zone July 2025',
-    'Level 1: Core Infrastructure and Security',
-    'Level 2: Modern Application Deployment',
-    'Level 3: Advanced App Operations',
     'Skills Boost Arcade Base Camp August 2025',
-    'Skills Boost Arcade Base Camp September 2025',
     'Skills Boost Arcade Certification Zone August 2025',
-    'Level 1: Application Design and Delivery',
-    'Level 2: Building with Cloud Tools',
-    'Level 3: Terraform Essentials',
-    'Level 1: Cloud Infrastructure and Data Foundation',
-    'Level 2: AI and Data Innovation on Google Cloud',
-    'Level 3: Developer Essentials',
+    'Skills Boost Arcade Base Camp September 2025',
     'Skills Boost Arcade Certification Zone September 2025',
-    'Level 1: Scalable Systems',
-    'Level 2: Cloud Operations and Application Management',
-    'Level 3: Generative AI',
     'Skills Boost Arcade Base Camp October 2025'
   ].join('|'), 'i'),
   
