@@ -553,6 +553,14 @@ export default function UploadPage() {
                 LEADERBOARD
               </p>
               <div className="mt-4 flex flex-col items-center gap-2">
+                <div className="flex flex-wrap justify-center gap-2 mb-2">
+                  <a
+                    href="/personal"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-pixel text-base border-2 border-green-400"
+                  >
+                    👤 PERSONAL ANALYZER
+                  </a>
+                </div>
                 <a
                   href="https://www.linkedin.com/in/alief-fauzan1/"
                   target="_blank"
