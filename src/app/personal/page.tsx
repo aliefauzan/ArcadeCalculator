@@ -3,6 +3,13 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+interface BadgeDetail {
+  name: string;
+  type: string;
+  earnedDate: string;
+  countsForMilestone: boolean;
+}
+
 interface PersonalData {
   skillCount: number;
   arcadeCount: number;
@@ -30,11 +37,20 @@ interface PersonalData {
       premiumExtraBadges: number;
     };
   };
+  badgeDetails?: {
+    skill: BadgeDetail[];
+    arcade: BadgeDetail[];
+    trivia: BadgeDetail[];
+    extra: BadgeDetail[];
+    premium: BadgeDetail[];
+  };
 }
 
 interface AnalysisResult {
   success: boolean;
   profileId: string;
+  profileName?: string;
+  profileImageUrl?: string;
   profileUrl: string;
   data: PersonalData;
 }
@@ -45,6 +61,8 @@ function PersonalProfileContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [modalCategory, setModalCategory] = useState<'skill' | 'arcade' | 'trivia' | 'extra' | 'premium' | 'all' | null>(null);
 
   const handleAnalyze = async (url?: string) => {
     const targetUrl = url || profileUrl;
@@ -228,8 +246,8 @@ function PersonalProfileContent() {
         </div>
 
         {/* Header matching team theme */}
-        <div className="relative z-10 bg-black/90 border-b-4 border-yellow-400">
-          <div className="container mx-auto px-4 py-6">
+        <div className="relative z-10">
+          <div className="container mx-auto px-4 py-12">
             <div className="text-center">
               <h1 className="text-2xl sm:text-3xl md:text-4xl mb-2 text-yellow-400 tracking-wider drop-shadow-[3px_3px_0_rgba(0,0,0,0.8)]">
                 PERSONAL ANALYZER
@@ -324,6 +342,32 @@ function PersonalProfileContent() {
         {/* Results Section - Team Style */}
         {result && (
           <div className="bg-black/80 border-2 border-slate-500 p-6 rounded-lg mb-6 backdrop-blur-sm">
+            {/* Profile Card */}
+            {(result.profileName || result.profileImageUrl) && (
+              <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-600">
+                {/* Profile Image */}
+                {result.profileImageUrl && (
+                  <div className="mb-4">
+                    <img 
+                      src={result.profileImageUrl} 
+                      alt={result.profileName || 'Profile'} 
+                      className="w-24 h-24 rounded-full border-4 border-yellow-400 shadow-lg object-cover"
+                    />
+                  </div>
+                )}
+                
+                {/* Profile Name */}
+                {result.profileName && (
+                  <div className="text-center">
+                    <div className="text-xs text-slate-400 mb-2">PROFILE</div>
+                    <h2 className="text-2xl md:text-3xl font-pixel text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.8)]">
+                      {result.profileName}
+                    </h2>
+                  </div>
+                )}
+              </div>
+            )}
+            
             {/* Header with Total Score, Arcade Tier (middle), and Milestone */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 pb-4 border-b-2 border-slate-600">
               <div className="text-center md:text-left mb-4 md:mb-0">
@@ -355,6 +399,20 @@ function PersonalProfileContent() {
             {/* Points Breakdown Table */}
             <div className="bg-black/40 border-2 border-slate-600 rounded p-4 mb-6 overflow-x-auto">
               <h3 className="text-yellow-400 font-pixel text-xl font-bold mb-4 text-center">&gt; POINTS BREAKDOWN &lt;</h3>
+              
+              {/* Show All Badges Button */}
+              <div className="mb-4 relative">
+                <button
+                  onClick={() => { setModalCategory('all'); setShowModal(true); }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-pixel py-3 px-4 rounded-lg transition-colors duration-200 border-2 border-blue-400 shadow-md hover:shadow-lg"
+                >
+                  🏆 SHOW ALL MY BADGES 🏆
+                </button>
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-pixel px-2 py-1 rounded border border-red-400 animate-pulse">
+                  TRY ME!
+                </span>
+              </div>
+
               <table className="w-full text-left text-xs md:text-sm">
                 <thead>
                   <tr className="border-b border-slate-600">
@@ -364,28 +422,68 @@ function PersonalProfileContent() {
                   </tr>
                 </thead>
                 <tbody className="text-white">
-                  <tr className="border-b border-slate-700">
-                    <td className="py-2 px-2">🎮 SKILL BADGES</td>
+                  <tr className="border-b border-slate-700 hover:bg-slate-700/30">
+                    <td className="py-2 px-2">
+                      <button 
+                        onClick={() => { setModalCategory('skill'); setShowModal(true); }}
+                        className="flex items-center gap-2 hover:text-cyan-400 transition-colors"
+                      >
+                        🎮 SKILL BADGES
+                        <span className="text-xs text-cyan-400">ℹ️</span>
+                      </button>
+                    </td>
                     <td className="py-2 px-2 text-center">{result.data.rawCounts.competitionPeriod.skillBadges}</td>
                     <td className="py-2 px-2 text-right">{result.data.skillPoints.toFixed(1)}</td>
                   </tr>
-                  <tr className="border-b border-slate-700">
-                    <td className="py-2 px-2">🕹️ ARCADE GAMES</td>
+                  <tr className="border-b border-slate-700 hover:bg-slate-700/30">
+                    <td className="py-2 px-2">
+                      <button 
+                        onClick={() => { setModalCategory('arcade'); setShowModal(true); }}
+                        className="flex items-center gap-2 hover:text-pink-400 transition-colors"
+                      >
+                        🕹️ ARCADE GAMES
+                        <span className="text-xs text-pink-400">ℹ️</span>
+                      </button>
+                    </td>
                     <td className="py-2 px-2 text-center">{result.data.rawCounts.competitionPeriod.arcadeBadges}</td>
                     <td className="py-2 px-2 text-right">{result.data.arcadePoints.toFixed(1)}</td>
                   </tr>
-                  <tr className="border-b border-slate-700">
-                    <td className="py-2 px-2">❓ TRIVIA GAMES</td>
+                  <tr className="border-b border-slate-700 hover:bg-slate-700/30">
+                    <td className="py-2 px-2">
+                      <button 
+                        onClick={() => { setModalCategory('trivia'); setShowModal(true); }}
+                        className="flex items-center gap-2 hover:text-green-400 transition-colors"
+                      >
+                        ❓ TRIVIA GAMES
+                        <span className="text-xs text-green-400">ℹ️</span>
+                      </button>
+                    </td>
                     <td className="py-2 px-2 text-center">{result.data.rawCounts.competitionPeriod.triviaBadges}</td>
                     <td className="py-2 px-2 text-right">{result.data.triviaPoints.toFixed(1)}</td>
                   </tr>
-                  <tr className="border-b border-slate-700">
-                    <td className="py-2 px-2">⚡ EXTRA BADGES</td>
+                  <tr className="border-b border-slate-700 hover:bg-slate-700/30">
+                    <td className="py-2 px-2">
+                      <button 
+                        onClick={() => { setModalCategory('extra'); setShowModal(true); }}
+                        className="flex items-center gap-2 hover:text-orange-400 transition-colors"
+                      >
+                        ⚡ EXTRA BADGES
+                        <span className="text-xs text-orange-400">ℹ️</span>
+                      </button>
+                    </td>
                     <td className="py-2 px-2 text-center">{result.data.rawCounts.extraBadges}</td>
                     <td className="py-2 px-2 text-right">{result.data.extraSkillPoints.toFixed(1)}</td>
                   </tr>
-                  <tr className="border-b border-slate-700">
-                    <td className="py-2 px-2">💎 PREMIUM EXTRA</td>
+                  <tr className="border-b border-slate-700 hover:bg-slate-700/30">
+                    <td className="py-2 px-2">
+                      <button 
+                        onClick={() => { setModalCategory('premium'); setShowModal(true); }}
+                        className="flex items-center gap-2 hover:text-purple-400 transition-colors"
+                      >
+                        💎 PREMIUM EXTRA
+                        <span className="text-xs text-purple-400">ℹ️</span>
+                      </button>
+                    </td>
                     <td className="py-2 px-2 text-center">{result.data.rawCounts.premiumExtraBadges}</td>
                     <td className="py-2 px-2 text-right">{result.data.premiumExtraPoints.toFixed(1)}</td>
                   </tr>
@@ -570,6 +668,363 @@ function PersonalProfileContent() {
               >
                 <span>🔄</span>
                 <span>NEW ANALYSIS</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Badge Details Modal */}
+        {showModal && modalCategory && result && (
+          <div 
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowModal(false)}
+          >
+            <div 
+              className="bg-slate-900 border-4 border-yellow-400 rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-pixel text-yellow-400">
+                  {modalCategory === 'skill' && '🎮 SKILL BADGES'}
+                  {modalCategory === 'arcade' && '🕹️ ARCADE GAMES'}
+                  {modalCategory === 'trivia' && '❓ TRIVIA GAMES'}
+                  {modalCategory === 'extra' && '⚡ EXTRA BADGES'}
+                  {modalCategory === 'premium' && '💎 PREMIUM EXTRA'}
+                  {modalCategory === 'all' && '🏆 ALL MY BADGES'}
+                </h3>
+                <button 
+                  onClick={() => setShowModal(false)}
+                  className="text-red-500 hover:text-red-400 text-2xl font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {/* Point value info */}
+                {modalCategory !== 'all' && (
+                  <div className="bg-yellow-900/20 border border-yellow-600 rounded p-3 mb-4">
+                    <div className="text-yellow-300 font-pixel text-sm">
+                      {modalCategory === 'skill' && '💡 Each badge: 0.5 points'}
+                      {modalCategory === 'arcade' && '💡 Each game: 1 point'}
+                      {modalCategory === 'trivia' && '💡 Each game: 1 point'}
+                      {modalCategory === 'extra' && '💡 Each badge: 2 points'}
+                      {modalCategory === 'premium' && '💡 Each badge: 3 points'}
+                    </div>
+                  </div>
+                )}
+
+                {/* Category specific details */}
+                <div className="text-white space-y-3">
+                  {modalCategory === 'skill' && result.data.badgeDetails && (
+                    <>
+                      <div className="bg-slate-800 border border-cyan-400 rounded p-4 mb-3">
+                        <div className="font-pixel text-cyan-400 mb-2">TOTAL EARNED</div>
+                        <div className="text-2xl font-bold text-cyan-400">
+                          {result.data.badgeDetails.skill.length} badges
+                        </div>
+                        <div className="text-lg text-cyan-300">
+                          = {result.data.skillPoints.toFixed(1)} points (0.5 pts each)
+                        </div>
+                      </div>
+                      
+                      {/* Badge List */}
+                      <div className="max-h-96 overflow-y-auto space-y-2">
+                        <div className="font-pixel text-cyan-400 text-sm mb-2">YOUR BADGES:</div>
+                        {result.data.badgeDetails.skill.map((badge, idx) => (
+                          <div key={idx} className="bg-slate-800/50 border border-cyan-600/30 rounded p-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1">
+                                <div className="text-sm font-bold text-white">{badge.name}</div>
+                                <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                              </div>
+                              <div className="text-cyan-400 font-bold text-sm">0.5 pts</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {modalCategory === 'arcade' && result.data.badgeDetails && (
+                    <>
+                      <div className="bg-slate-800 border border-pink-400 rounded p-4 mb-3">
+                        <div className="font-pixel text-pink-400 mb-2">TOTAL EARNED</div>
+                        <div className="text-2xl font-bold text-pink-400">
+                          {result.data.badgeDetails.arcade.length} games
+                        </div>
+                        <div className="text-lg text-pink-300">
+                          = {result.data.arcadePoints.toFixed(1)} points (1 pt each)
+                        </div>
+                      </div>
+                      
+                      {/* Badge List */}
+                      <div className="max-h-96 overflow-y-auto space-y-2">
+                        <div className="font-pixel text-pink-400 text-sm mb-2">YOUR ARCADE GAMES:</div>
+                        {result.data.badgeDetails.arcade.map((badge, idx) => (
+                          <div key={idx} className="bg-slate-800/50 border border-pink-600/30 rounded p-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1">
+                                <div className="text-sm font-bold text-white">{badge.name}</div>
+                                <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                              </div>
+                              <div className="text-pink-400 font-bold text-sm">1 pt</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {modalCategory === 'trivia' && result.data.badgeDetails && (
+                    <>
+                      <div className="bg-slate-800 border border-green-400 rounded p-4 mb-3">
+                        <div className="font-pixel text-green-400 mb-2">TOTAL EARNED</div>
+                        <div className="text-2xl font-bold text-green-400">
+                          {result.data.badgeDetails.trivia.length} games
+                        </div>
+                        <div className="text-lg text-green-300">
+                          = {result.data.triviaPoints.toFixed(1)} points (1 pt each)
+                        </div>
+                      </div>
+                      
+                      {/* Badge List */}
+                      <div className="max-h-96 overflow-y-auto space-y-2">
+                        <div className="font-pixel text-green-400 text-sm mb-2">YOUR TRIVIA GAMES:</div>
+                        {result.data.badgeDetails.premium.map((badge, idx) => (
+                          <div key={idx} className="bg-slate-800/50 border border-purple-600/30 rounded p-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1">
+                                <div className="text-sm font-bold text-white">{badge.name}</div>
+                                <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                              </div>
+                              <div className="text-purple-400 font-bold text-sm">3 pts</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {modalCategory === 'extra' && result.data.badgeDetails && (
+                    <>
+                      <div className="bg-slate-800 border border-orange-400 rounded p-4 mb-3">
+                        <div className="font-pixel text-orange-400 mb-2">TOTAL EARNED</div>
+                        <div className="text-2xl font-bold text-orange-400">
+                          {result.data.badgeDetails.extra.length} badges
+                        </div>
+                        <div className="text-lg text-orange-300">
+                          = {result.data.extraSkillPoints.toFixed(1)} points (2 pts each)
+                        </div>
+                      </div>
+                      
+                      {/* Badge List */}
+                      <div className="max-h-96 overflow-y-auto space-y-2">
+                        <div className="font-pixel text-orange-400 text-sm mb-2">YOUR EXTRA BADGES:</div>
+                        {result.data.badgeDetails.extra.map((badge, idx) => (
+                          <div key={idx} className="bg-slate-800/50 border border-orange-600/30 rounded p-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1">
+                                <div className="text-sm font-bold text-white">{badge.name}</div>
+                                <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                              </div>
+                              <div className="text-orange-400 font-bold text-sm">2 pts</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {modalCategory === 'premium' && result.data.badgeDetails && (
+                    <>
+                      <div className="bg-slate-800 border border-purple-400 rounded p-4 mb-3">
+                        <div className="font-pixel text-purple-400 mb-2">TOTAL EARNED</div>
+                        <div className="text-2xl font-bold text-purple-400">
+                          {result.data.badgeDetails.premium.length} badges
+                        </div>
+                        <div className="text-lg text-purple-300">
+                          = {result.data.premiumExtraPoints.toFixed(1)} points (3 pts each)
+                        </div>
+                      </div>
+                      
+                      {/* Badge List */}
+                      <div className="max-h-96 overflow-y-auto space-y-2">
+                        <div className="font-pixel text-purple-400 text-sm mb-2">YOUR PREMIUM BADGES:</div>
+                        {result.data.badgeDetails.premium.length > 0 ? (
+                          result.data.badgeDetails.premium.map((badge, idx) => (
+                            <div key={idx} className="bg-slate-800/50 border border-purple-600/30 rounded p-3">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1">
+                                  <div className="text-sm font-bold text-purple-300">{badge.name}</div>
+                                  <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                                </div>
+                                <div className="text-purple-400 font-bold text-sm">3 pts</div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center text-slate-400 py-4">
+                            No premium badges earned yet. Keep going! 💪
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* ALL BADGES VIEW */}
+                  {modalCategory === 'all' && result.data.badgeDetails && (
+                    <div className="space-y-6">
+                      {/* Total Summary */}
+                      <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-2 border-yellow-400 rounded-lg p-4">
+                        <div className="font-pixel text-yellow-400 text-lg mb-2">🏆 TOTAL ACHIEVEMENTS</div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="text-slate-300">Total Badges:</div>
+                            <div className="text-2xl font-bold text-white">
+                              {result.data.badgeDetails.skill.length + 
+                               result.data.badgeDetails.arcade.length + 
+                               result.data.badgeDetails.trivia.length + 
+                               result.data.badgeDetails.extra.length + 
+                               result.data.badgeDetails.premium.length}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-slate-300">Total Points:</div>
+                            <div className="text-2xl font-bold text-yellow-400">
+                              {result.data.totalPoints.toFixed(1)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* All Categories */}
+                      <div className="max-h-96 overflow-y-auto space-y-4">
+                        {/* Skill Badges */}
+                        {result.data.badgeDetails.skill.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 sticky top-0 bg-slate-900 py-2 z-10 border-b border-cyan-600">
+                              <span className="font-pixel text-cyan-400">🎮 SKILL BADGES</span>
+                              <span className="text-slate-400 text-sm">({result.data.badgeDetails.skill.length})</span>
+                            </div>
+                            <div className="space-y-2">
+                              {result.data.badgeDetails.skill.map((badge, idx) => (
+                                <div key={idx} className="bg-slate-800/50 border border-cyan-600/30 rounded p-3">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <div className="flex-1">
+                                      <div className="text-sm font-bold text-white">{badge.name}</div>
+                                      <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                                    </div>
+                                    <div className="text-cyan-400 font-bold text-sm">0.5 pts</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Arcade Games */}
+                        {result.data.badgeDetails.arcade.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 sticky top-0 bg-slate-900 py-2 z-10 border-b border-pink-600">
+                              <span className="font-pixel text-pink-400">🕹️ ARCADE GAMES</span>
+                              <span className="text-slate-400 text-sm">({result.data.badgeDetails.arcade.length})</span>
+                            </div>
+                            <div className="space-y-2">
+                              {result.data.badgeDetails.arcade.map((badge, idx) => (
+                                <div key={idx} className="bg-slate-800/50 border border-pink-600/30 rounded p-3">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <div className="flex-1">
+                                      <div className="text-sm font-bold text-white">{badge.name}</div>
+                                      <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                                    </div>
+                                    <div className="text-pink-400 font-bold text-sm">1 pt</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Trivia Games */}
+                        {result.data.badgeDetails.trivia.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 sticky top-0 bg-slate-900 py-2 z-10 border-b border-green-600">
+                              <span className="font-pixel text-green-400">❓ TRIVIA GAMES</span>
+                              <span className="text-slate-400 text-sm">({result.data.badgeDetails.trivia.length})</span>
+                            </div>
+                            <div className="space-y-2">
+                              {result.data.badgeDetails.trivia.map((badge, idx) => (
+                                <div key={idx} className="bg-slate-800/50 border border-green-600/30 rounded p-3">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <div className="flex-1">
+                                      <div className="text-sm font-bold text-white">{badge.name}</div>
+                                      <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                                    </div>
+                                    <div className="text-green-400 font-bold text-sm">1 pt</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Extra Badges */}
+                        {result.data.badgeDetails.extra.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 sticky top-0 bg-slate-900 py-2 z-10 border-b border-orange-600">
+                              <span className="font-pixel text-orange-400">⚡ EXTRA BADGES</span>
+                              <span className="text-slate-400 text-sm">({result.data.badgeDetails.extra.length})</span>
+                            </div>
+                            <div className="space-y-2">
+                              {result.data.badgeDetails.extra.map((badge, idx) => (
+                                <div key={idx} className="bg-slate-800/50 border border-orange-600/30 rounded p-3">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <div className="flex-1">
+                                      <div className="text-sm font-bold text-white">{badge.name}</div>
+                                      <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                                    </div>
+                                    <div className="text-orange-400 font-bold text-sm">2 pts</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Premium Badges */}
+                        {result.data.badgeDetails.premium.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 sticky top-0 bg-slate-900 py-2 z-10 border-b border-purple-600">
+                              <span className="font-pixel text-purple-400">💎 PREMIUM EXTRA</span>
+                              <span className="text-slate-400 text-sm">({result.data.badgeDetails.premium.length})</span>
+                            </div>
+                            <div className="space-y-2">
+                              {result.data.badgeDetails.premium.map((badge, idx) => (
+                                <div key={idx} className="bg-slate-800/50 border border-purple-600/30 rounded p-3">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <div className="flex-1">
+                                      <div className="text-sm font-bold text-white">{badge.name}</div>
+                                      <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
+                                    </div>
+                                    <div className="text-purple-400 font-bold text-sm">3 pts</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="mt-6 w-full bg-yellow-600 hover:bg-yellow-500 text-white font-pixel py-3 rounded border-2 border-yellow-400 transition-all"
+              >
+                CLOSE
               </button>
             </div>
           </div>
