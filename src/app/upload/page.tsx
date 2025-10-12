@@ -553,19 +553,11 @@ export default function UploadPage() {
                 LEADERBOARD
               </p>
               <div className="mt-4 flex flex-col items-center gap-2">
-                <div className="flex flex-wrap justify-center gap-2 mb-2">
-                  <a
-                    href="/personal"
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-pixel text-base border-2 border-green-400"
-                  >
-                    👤 PERSONAL ANALYZER
-                  </a>
-                </div>
                 <a
                   href="https://www.linkedin.com/in/alief-fauzan1/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-pixel text-base border-2 border-blue-400"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-pixel text-base border-2 border-blue-400 transition-all"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -576,7 +568,6 @@ export default function UploadPage() {
                   >
                     <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm13.5 11.268h-3v-5.604c0-1.337-.026-3.063-1.868-3.063-1.868 0-2.154 1.459-2.154 2.967v5.7h-3v-10h2.881v1.367h.041c.401-.761 1.379-1.563 2.838-1.563 3.036 0 3.599 2.001 3.599 4.604v5.592z" />
                   </svg>
-
                   <span>aliefauzan</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -588,6 +579,18 @@ export default function UploadPage() {
                     <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm13.5 11.268h-3v-5.604c0-1.337-.026-3.063-1.868-3.063-1.868 0-2.154 1.459-2.154 2.967v5.7h-3v-10h2.881v1.367h.041c.401-.761 1.379-1.563 2.838-1.563 3.036 0 3.599 2.001 3.599 4.604v5.592z" />
                   </svg>
                 </a>
+                
+                <div className="relative inline-block">
+                  <a
+                    href="/personal"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded font-pixel text-base border-2 border-yellow-400 transition-all"
+                  >
+                    PERSONAL ANALYZER
+                  </a>
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-pixel px-2 py-1 rounded border border-red-400 animate-pulse">
+                    TRY ME!
+                  </span>
+                </div>
               </div>
             </header>
 
