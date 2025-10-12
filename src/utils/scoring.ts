@@ -69,6 +69,8 @@ export function calculatePoints(badgeCount: BadgeCount) {
     skillPoints,
     arcadePoints,
     triviaPoints,
+    extraSkillPoints,
+    premiumExtraPoints,
     basePoints,
     bonusPoints,
     totalPoints,
