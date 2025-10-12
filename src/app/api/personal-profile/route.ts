@@ -38,6 +38,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       profileId,
+      profileName: badgeCount.profileName || profileId,
+      profileImageUrl: badgeCount.profileImageUrl || '',
       profileUrl: url,
       data: {
         ...personalData,
@@ -56,7 +58,9 @@ export async function POST(request: Request) {
             extraBadges: badgeCount.milestoneEligible.extraSkillBadgeCount,
             premiumExtraBadges: badgeCount.milestoneEligible.premiumExtraBadgeCount,
           }
-        }
+        },
+        // Add badge details for modal display
+        badgeDetails: badgeCount.badges
       }
     });
 
