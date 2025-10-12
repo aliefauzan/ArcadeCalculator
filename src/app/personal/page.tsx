@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 interface PersonalData {
@@ -39,7 +39,7 @@ interface AnalysisResult {
   data: PersonalData;
 }
 
-export default function PersonalProfilePage() {
+function PersonalProfileContent() {
   const searchParams = useSearchParams();
   const [profileUrl, setProfileUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -584,5 +584,20 @@ export default function PersonalProfilePage() {
         `}</style>
       </div>
     </>
+  );
+}
+
+export default function PersonalProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0d112a] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-yellow-400 font-pixel text-xl mb-4">LOADING...</div>
+          <div className="animate-pulse text-yellow-300">⚡</div>
+        </div>
+      </div>
+    }>
+      <PersonalProfileContent />
+    </Suspense>
   );
 }
