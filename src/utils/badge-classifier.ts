@@ -18,7 +18,8 @@ const PATTERNS = {
     'Skills Boost Arcade Certification Zone August 2025',
     'Skills Boost Arcade Base Camp September 2025',
     'Skills Boost Arcade Certification Zone September 2025',
-    'Skills Boost Arcade Base Camp October 2025'
+    'Skills Boost Arcade Base Camp October 2025',
+    'Skills Boost Arcade Certification Zone October 2025',
   ].join('|'), 'i'),
   
   extraSkill: new RegExp([
@@ -41,7 +42,8 @@ const PATTERNS = {
   excluded: new RegExp([
     'Work Meets Play: Banking With Empathy',
     'Work Meets Play: Faster Finance',
-    'Work Meets Play: Scaling Success Challenge'
+    'Work Meets Play: Scaling Success Challenge',
+    'Work Meets Play: AI Assured'
   ].join('|'), 'i'), // These should not count as any badge type
 };
 
