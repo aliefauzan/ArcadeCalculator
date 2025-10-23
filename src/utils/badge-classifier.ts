@@ -19,7 +19,7 @@ const PATTERNS = {
     'Skills Boost Arcade Base Camp September 2025',
     'Skills Boost Arcade Certification Zone September 2025',
     'Skills Boost Arcade Base Camp October 2025',
-    'Skills Boost Arcade Certification Zone October 2025',
+    'Google Skills Arcade Certification Zone October 2025',
   ].join('|'), 'i'),
   
   extraSkill: new RegExp([
