@@ -7,7 +7,8 @@ const PATTERNS = {
     'Skills Boost Arcade Trivia July 2025 Week [1-4]',
     'Skills Boost Arcade Trivia August 2025 Week [1-4]',
     'Skills Boost Arcade Trivia September 2025 Week [1-4]',
-    'Skills Boost Arcade Trivia October 2025 Week [1-4]'
+    'Skills Boost Arcade Trivia October 2025 Week [1-4]',
+    "Google Skills Arcade Trivia November 2025 Week [1-4]",
   ].join('|'), 'i'),
   
   arcade: new RegExp([
@@ -20,6 +21,7 @@ const PATTERNS = {
     'Skills Boost Arcade Certification Zone September 2025',
     'Skills Boost Arcade Base Camp October 2025',
     'Google Skills Arcade Certification Zone October 2025',
+    'Google Skills Arcade Base Camp November 2025',
   ].join('|'), 'i'),
   
   extraSkill: new RegExp([
