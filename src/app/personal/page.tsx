@@ -311,13 +311,13 @@ function PersonalProfileContent() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-pixel text-white mb-2 tracking-wide">
-                  GOOGLE CLOUD SKILLS BOOST PUBLIC PROFILE URL
+                  GOOGLE SKILLS PUBLIC PROFILE URL
                 </label>
                 <input
                   type="url"
                   value={profileUrl}
                   onChange={(e) => setProfileUrl(e.target.value)}
-                  placeholder="https://www.cloudskillsboost.google/public_profiles/your-profile-id"
+                  placeholder="https://www.skills.google/public_profiles/your-profile-id"
                   className="w-full px-4 py-3 bg-black border-2 border-yellow-400/70 rounded text-yellow-400 placeholder-yellow-600/50 focus:outline-none focus:border-yellow-400 focus:shadow-[0_0_10px_rgba(255,255,0,0.5)] font-pixel text-xs transition-all"
                   disabled={isLoading}
                 />

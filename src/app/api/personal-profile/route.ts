@@ -13,10 +13,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate URL format
-    if (!url.includes('cloudskillsboost.google') || !url.includes('public_profiles')) {
+    // Validate URL format - accept both cloudskillsboost.google and skills.google domains
+    const isValidDomain = url.includes('cloudskillsboost.google') || url.includes('skills.google');
+    const hasPublicProfiles = url.includes('public_profiles');
+    
+    if (!isValidDomain || !hasPublicProfiles) {
       return NextResponse.json(
-        { error: 'Please provide a valid Google Cloud Skills Boost public profile URL' },
+        { error: 'Please provide a valid Google Cloud Skills Boost or Google Skills public profile URL' },
         { status: 400 }
       );
     }
