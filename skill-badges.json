@@ -108,7 +108,7 @@
     "labs_count": "5"
   },
   {
-    "name": "Build and Deploy Machine Learning Solutions on Vertex AI",
+    "name": "[RETIRED] Build and Deploy Machine Learning Solutions on Vertex AI",
     "url": "https://www.cloudskillsboost.google/course_templates/684",
     "level": "Intermediate",
     "cost": "20 Credits",
@@ -117,7 +117,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Build Custom Processors with Document AI",
+    "name": "[RETIRED] Build Custom Processors with Document AI",
     "url": "https://www.cloudskillsboost.google/course_templates/686",
     "level": "Intermediate",
     "cost": "30 Credits",
@@ -135,7 +135,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Build Google Cloud Infrastructure for Azure Professionals",
+    "name": "DEPRECATED Build Google Cloud Infrastructure for Azure Professionals",
     "url": "https://www.cloudskillsboost.google/course_templates/688",
     "level": "Intermediate",
     "cost": "20 Credits",
@@ -306,7 +306,7 @@
     "labs_count": "7"
   },
   {
-    "name": "Detect Manufacturing Defects using Visual Inspection AI",
+    "name": "[RETIRED] Detect Manufacturing Defects using Visual Inspection AI",
     "url": "https://www.cloudskillsboost.google/course_templates/644",
     "level": "Intermediate",
     "cost": "25 Credits",
@@ -324,7 +324,7 @@
     "labs_count": "6"
   },
   {
-    "name": "Develop GenAI Apps with Gemini and Streamlit",
+    "name": "Develop Gen AI Apps with Gemini and Streamlit",
     "url": "https://www.cloudskillsboost.google/course_templates/978",
     "level": "Intermediate",
     "cost": "20 Credits",
@@ -360,7 +360,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Develop your Google Cloud Network",
+    "name": "Develop Your Google Cloud Network",
     "url": "https://www.cloudskillsboost.google/course_templates/625",
     "level": "Intermediate",
     "cost": "18 Credits",
@@ -504,7 +504,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Implement Load Balancing on Compute Engine",
+    "name": "Implementing Cloud Load Balancing for Compute Engine",
     "url": "https://www.cloudskillsboost.google/course_templates/648",
     "level": "Introductory",
     "cost": "1 Credit",
@@ -558,7 +558,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Migrate MySQL data to Cloud SQL using Database Migration Service",
+    "name": "Migrate MySQL Data to Cloud SQL Using Database Migration Service",
     "url": "https://www.cloudskillsboost.google/course_templates/629",
     "level": "Introductory",
     "cost": "5 Credits",
@@ -603,7 +603,7 @@
     "labs_count": "5"
   },
   {
-    "name": "Networking Fundamentals on Google Cloud",
+    "name": "[RETIRED] Networking Fundamentals on Google Cloud",
     "url": "https://www.cloudskillsboost.google/course_templates/748",
     "level": "Introductory",
     "cost": "4 Credits",
@@ -621,7 +621,7 @@
     "labs_count": "5"
   },
   {
-    "name": "Perform Foundational Infrastructure Tasks in Google Cloud",
+    "name": "Set Up an App Dev Environment on Google Cloud",
     "url": "https://www.cloudskillsboost.google/course_templates/637",
     "level": "Introductory",
     "cost": "8 Credits",
@@ -702,7 +702,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Share Data using Google Data Cloud",
+    "name": "Share Data Using Google Data Cloud",
     "url": "https://www.cloudskillsboost.google/course_templates/657",
     "level": "Introductory",
     "cost": "9 Credits",
@@ -738,7 +738,7 @@
     "labs_count": "4"
   },
   {
-    "name": "Tag and Discover BigLake Data",
+    "name": "Enrich Metadata and Discovery of BigLake Data",
     "url": "https://www.cloudskillsboost.google/course_templates/753",
     "level": "Introductory",
     "cost": "3 Credits",
