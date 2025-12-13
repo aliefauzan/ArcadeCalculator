@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-interface SkillBadge {
+export interface SkillBadge {
   name: string;
   url: string;
   level: string;
@@ -12,11 +12,13 @@ interface SkillBadge {
 }
 
 export let skillBadgeNames: string[] = [];
+export let allSkillBadges: SkillBadge[] = [];
 
 try {
   const skillBadgeData: SkillBadge[] = JSON.parse(
     fs.readFileSync(path.join(process.cwd(), 'skill-badges.json'), 'utf-8')
   );
+  allSkillBadges = skillBadgeData;
   skillBadgeNames = skillBadgeData.map((badge) => badge.name.toLowerCase());
   console.log(`📚 Loaded ${skillBadgeNames.length} skill badge names for validation`);
 } catch (error) {
