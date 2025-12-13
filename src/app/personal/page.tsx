@@ -2,69 +2,20 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-
-interface BadgeDetail {
-  name: string;
-  type: string;
-  earnedDate: string;
-  countsForMilestone: boolean;
-}
-
-interface SkillBadge {
-  name: string;
-  url: string;
-  level: string;
-  cost: string;
-  keyword: string;
-  duration: string;
-  labs_count: string;
-}
-
-interface PersonalData {
-  skillCount: number;
-  arcadeCount: number;
-  triviaCount: number;
-  skillPoints: number;
-  arcadePoints: number;
-  triviaPoints: number;
-  extraSkillPoints: number;
-  premiumExtraPoints: number;
-  basePoints: number;
-  bonusPoints: number;
-  totalPoints: number;
-  milestone: string;
-  rawCounts: {
-    skillBadges: number;
-    arcadeBadges: number;
-    triviaBadges: number;
-    extraBadges: number;
-    premiumExtraBadges: number;
-    competitionPeriod: {
-      skillBadges: number;
-      arcadeBadges: number;
-      triviaBadges: number;
-      extraBadges: number;
-      premiumExtraBadges: number;
-    };
-  };
-  badgeDetails?: {
-    skill: BadgeDetail[];
-    arcade: BadgeDetail[];
-    trivia: BadgeDetail[];
-    extra: BadgeDetail[];
-    premium: BadgeDetail[];
-  };
-  allSkillBadges?: SkillBadge[];
-}
-
-interface AnalysisResult {
-  success: boolean;
-  profileId: string;
-  profileName?: string;
-  profileImageUrl?: string;
-  profileUrl: string;
-  data: PersonalData;
-}
+import type {
+  AnalysisResult,
+  ModalCategory,
+  LevelFilter,
+  SortOption
+} from '../../types';
+import {
+  MissingBadgesModal,
+  ProfileForm,
+  StarfieldBackground,
+  LastUpdateBadge,
+  generateStars,
+  type Star
+} from '../../components';
 
 function PersonalProfileContent() {
   const searchParams = useSearchParams();
@@ -73,12 +24,12 @@ function PersonalProfileContent() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [modalCategory, setModalCategory] = useState<'skill' | 'arcade' | 'trivia' | 'extra' | 'premium' | 'all' | 'missing' | null>(null);
+  const [modalCategory, setModalCategory] = useState<ModalCategory>(null);
 
   // Missing badges modal state
   const [searchQuery, setSearchQuery] = useState('');
-  const [levelFilter, setLevelFilter] = useState<'all' | 'Introductory' | 'Intermediate'>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'duration' | 'labs'>('name');
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('name');
 
 
   const handleAnalyze = async (url?: string) => {
@@ -195,23 +146,10 @@ function PersonalProfileContent() {
   );
 
   // Generate stars on mount
-  const [stars, setStars] = React.useState<{
-    id: number;
-    left: string;
-    top: string;
-    animationDelay: string;
-    size: string;
-  }[]>([]);
+  const [stars, setStars] = React.useState<Star[]>([]);
 
   React.useEffect(() => {
-    const generatedStars = Array.from({ length: 200 }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      animationDelay: `${Math.random() * 5}s`,
-      size: `${Math.floor(Math.random() * 2) + 1}px`,
-    }));
-    setStars(generatedStars);
+    setStars(generateStars(200));
   }, []);
 
   return (

@@ -1,26 +1,29 @@
 import fs from 'fs';
 import path from 'path';
+import type { SkillBadge } from '../types';
 
-export interface SkillBadge {
-  name: string;
-  url: string;
-  level: string;
-  cost: string;
-  keyword: string;
-  duration: string;
-  labs_count: string;
+// Re-export the type for convenience
+export type { SkillBadge };
+
+// Load skill badge data (readonly to prevent mutation)
+function loadSkillBadges(): { names: readonly string[]; badges: readonly SkillBadge[] } {
+  try {
+    const data: SkillBadge[] = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'skill-badges.json'), 'utf-8')
+    );
+    console.log(`📚 Loaded ${data.length} skill badge names for validation`);
+    return {
+      names: Object.freeze(data.map(badge => badge.name.toLowerCase())),
+      badges: Object.freeze(data),
+    };
+  } catch (error) {
+    console.error('❌ Failed to load skill-badges.json:', error);
+    return { names: [], badges: [] };
+  }
 }
 
-export let skillBadgeNames: string[] = [];
-export let allSkillBadges: SkillBadge[] = [];
+const { names, badges } = loadSkillBadges();
 
-try {
-  const skillBadgeData: SkillBadge[] = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'skill-badges.json'), 'utf-8')
-  );
-  allSkillBadges = skillBadgeData;
-  skillBadgeNames = skillBadgeData.map((badge) => badge.name.toLowerCase());
-  console.log(`📚 Loaded ${skillBadgeNames.length} skill badge names for validation`);
-} catch (error) {
-  console.error('❌ Failed to load skill-badges.json:', error);
-}
+// Export as readonly constants
+export const skillBadgeNames: readonly string[] = names;
+export const allSkillBadges: readonly SkillBadge[] = badges;
