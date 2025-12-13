@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { scrapeProfile } from '../../../utils/profile-scraper';
 import { calculatePoints } from '../../../utils/scoring';
+import { allSkillBadges } from '../../../utils/skill-badges';
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     // Validate URL format - accept both cloudskillsboost.google and skills.google domains
     const isValidDomain = url.includes('cloudskillsboost.google') || url.includes('skills.google');
     const hasPublicProfiles = url.includes('public_profiles');
-    
+
     if (!isValidDomain || !hasPublicProfiles) {
       return NextResponse.json(
         { error: 'Please provide a valid Google Cloud Skills Boost or Google Skills public profile URL' },
@@ -25,19 +26,19 @@ export async function POST(request: Request) {
     }
 
     console.log(`🔍 Analyzing personal profile: ${url}`);
-    
+
     // Scrape the profile
     const badgeCount = await scrapeProfile(url);
-    
+
     // Calculate points and milestone
     const personalData = calculatePoints(badgeCount);
-    
+
     // Extract profile name from URL for display (optional)
     const profileMatch = url.match(/public_profiles\/([^/?]+)/);
     const profileId = profileMatch ? profileMatch[1] : 'Unknown';
-    
+
     console.log(`✅ Profile analysis complete for ${profileId}`);
-    
+
     return NextResponse.json({
       success: true,
       profileId,
@@ -63,20 +64,22 @@ export async function POST(request: Request) {
           }
         },
         // Add badge details for modal display
-        badgeDetails: badgeCount.badges
+        badgeDetails: badgeCount.badges,
+        // Add all skill badges for missing badges feature
+        allSkillBadges: allSkillBadges
       }
     });
 
   } catch (error) {
     console.error('❌ Personal profile analysis failed:', error);
-    
+
     if (error instanceof Error && error.message.includes('403')) {
       return NextResponse.json(
         { error: 'Profile is private or inaccessible. Please make sure the profile is public.' },
         { status: 403 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to analyze profile. Please check the URL and try again.' },
       { status: 500 }
@@ -88,14 +91,14 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const profileUrl = searchParams.get('profile');
-  
+
   if (!profileUrl) {
     return NextResponse.json(
       { error: 'Profile URL parameter is required' },
       { status: 400 }
     );
   }
-  
+
   // Forward to POST handler
   return POST(new Request(request.url, {
     method: 'POST',
