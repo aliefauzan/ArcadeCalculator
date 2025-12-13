@@ -2,19 +2,19 @@
 
 **🌐 Live Demo**: [https://arcade-calculator-280204705798.asia-southeast2.run.app/upload](https://arcade-calculator-280204705798.asia-southeast2.run.app/upload)
 
-![Arcade Theme](https://img.shields.io/badge/Theme-Retro%20Arcade-yellow) ![Next.js](https://img.shields.io/badge/Next.js-15.4.4-black) ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
+![Arcade Theme](https://img.shields.io/badge/Theme-Retro%20Arcade-yellow) ![Next.js](https://img.shields.io/badge/Next.js-15.4.10-black) ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
 
-A Next.js web application with **micro-service architecture** that processes Google Cloud Skills Boost CSV data and generates interactive leaderboards with retro arcade aesthetics.
+A Next.js web application with **modular architecture** that processes Google Cloud Skills Boost CSV data and generates interactive leaderboards with retro arcade aesthetics.
 
 ## ✨ Key Features
 
-- **🏗️ Micro-Service Architecture**: Modular design with 6 utility services for optimal maintainability
+- **🏗️ Modular Architecture**: Clean separation with shared types, constants, and reusable components
 - **⚡ High-Performance Processing**: ~15-25 seconds for 115 participants with parallel batch processing
-- **🎯 Smart Competition Logic**: Dual scoring system with competition period filtering (July 15 - September 16, 2025)
+- **🎯 Smart Competition Logic**: Dual scoring system with competition period filtering
 - **🎨 Retro Design**: Pixel-perfect 8-bit aesthetic with animated backgrounds and custom fonts
 - **📄 Professional PDF Export**: High-quality colored reports with full formatting preservation
 - **🔄 Smart Caching**: SHA256-based caching with 45-minute TTL for improved performance
-- **🛡️ Enhanced Error Handling**: Graceful handling of private profiles (403/404 errors)
+- **🔍 Missing Badge Tracker**: Find which skill badges you haven't earned yet
 
 ## 🚀 Quick Start
 
@@ -35,16 +35,29 @@ npm run dev
 ```
 src/
 ├── app/
-│   ├── api/process-leaderboard/route.ts  # Main processing endpoint
-│   ├── api/scrape/route.ts              # Profile scraping
-│   └── upload/                          # UI components
-└── utils/                               # Micro-services
-    ├── cache-manager.ts                 # SHA256 caching + TTL
-    ├── profile-scraper.ts               # Badge scraping orchestration
-    ├── badge-classifier.ts              # Date filtering + badge classification
-    ├── fetch-utils.ts                   # Smart retry + exponential backoff
-    ├── scoring.ts                       # Point calculation + milestones
-    └── skill-badges.ts                  # 93 skill badge database
+│   ├── api/
+│   │   ├── process-leaderboard/route.ts  # CSV processing endpoint
+│   │   ├── personal-profile/route.ts     # Individual profile analysis
+│   │   └── scrape/route.ts               # Profile scraping
+│   ├── personal/page.tsx                 # Personal analyzer page
+│   └── upload/                           # Team leaderboard page
+├── components/                           # Reusable UI components
+│   ├── index.ts                          # Component exports
+│   ├── MissingBadgesModal.tsx            # Missing badges feature
+│   ├── ProfileForm.tsx                   # Profile URL input form
+│   ├── PixelArt.tsx                      # Decorative pixel art
+│   └── Header.tsx                        # Page header
+├── constants/                            # App-wide constants
+│   └── index.ts                          # Points, milestones, tiers
+├── types/                                # Shared TypeScript types
+│   └── index.ts                          # All interfaces & types
+└── utils/                                # Utility services
+    ├── cache-manager.ts                  # SHA256 caching + TTL
+    ├── profile-scraper.ts                # Badge scraping
+    ├── badge-classifier.ts               # Date filtering + classification
+    ├── fetch-utils.ts                    # Smart retry + backoff
+    ├── scoring.ts                        # Point calculation + milestones
+    └── skill-badges.ts                   # 93 skill badge database
 ```
 
 ### Data Flow
@@ -54,19 +67,33 @@ CSV Upload → Parsing → Profile Scraping → Badge Classification → Scoring
 Cache Check → Validation → Batch Processing → Competition Filter → Milestones → PDF Export
 ```
 
-## 🎯 Competition System
+## 🎯 Scoring System
 
-### Scoring Rules
-- **Skill badges**: 0.5 points each
-- **Extra badges**: 2 points each  
-- **Arcade games**: 1 point each
-- **Trivia games**: 1 point each
-- **Milestone bonuses**: Up to 28 points
+### Point Values
+| Badge Type | Points |
+|------------|--------|
+| Skill Badges | 0.5 pts |
+| Arcade Games | 1.0 pts |
+| Trivia Games | 1.0 pts |
+| Extra Badges | 2.0 pts |
+| Premium Extra | 3.0 pts |
 
-### Competition Period *(Completed)*
-- **Period**: July 15 - September 16, 2025
-- **Logic**: All badges count for base points, only competition-period badges counted for milestones
-- **Milestones**: 🥇 ULTIMATE → 🥈 Level 3 → 🥉 Level 2 → 🏅 Level 1
+### Milestones
+| Milestone | Arcade | Trivia | Skill | Bonus |
+|-----------|--------|--------|-------|-------|
+| 🏅 CADET | 4 | 4 | 10 | +7 pts |
+| 🥉 SPACE PILOT | 6 | 6 | 20 | +14 pts |
+| 🥈 GALAXY COMMANDER | 8 | 7 | 30 | +19 pts |
+| 🥇 ULTIMATE MASTER | 10 | 8 | 44 | +28 pts |
+
+### Arcade Tiers
+| Tier | Points Range |
+|------|-------------|
+| ⭐ Novice | 0-24 |
+| ⭐⭐ Trooper | 25-44 |
+| ⭐⭐⭐ Ranger | 45-64 |
+| ⭐⭐⭐⭐ Champion | 65-94 |
+| ⭐⭐⭐⭐⭐ Legend | 95+ |
 
 ## 📡 API Endpoints
 
@@ -74,17 +101,16 @@ Cache Check → Validation → Batch Processing → Competition Filter → Miles
 ```http
 POST /api/process-leaderboard
 Content-Type: text/csv or multipart/form-data
-
-Response:
-{
-  "cacheStatus": "HIT|MISS",
-  "cacheExpiresIn": "45 minutes",
-  "leaderboard": [...],
-  "totalStats": {...}
-}
 ```
 
-### Individual Profile Scraping
+### Individual Profile Analysis
+```http
+POST /api/personal-profile
+Content-Type: application/json
+Body: {"url": "profile-url"}
+```
+
+### Profile Scraping
 ```http
 POST /api/scrape
 Content-Type: application/json
@@ -99,27 +125,13 @@ docker build -t arcade-calculator .
 docker run -p 3000:3000 arcade-calculator
 ```
 
-### Vercel (Recommended)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/aliefauzan/ArcadeCalculator)
-
 ### Google Cloud Run
 ```bash
 gcloud builds submit --tag gcr.io/PROJECT_ID/arcade-calculator
 gcloud run deploy --image gcr.io/PROJECT_ID/arcade-calculator --allow-unauthenticated
 ```
 
-## 🛠️ Configuration
-
-### CSV Requirements
-- `Nama Peserta`: Participant name
-- `Email Peserta`: Participant email  
-- `URL Profil Google Cloud Skills Boost`: Profile URL
-
-### Environment Variables
-Auto-generated build timestamps:
-- `BUILD_DATE`, `BUILD_VERSION`, `BUILD_TIME` (updated on each build)
-
-## 🔧 Development
+## 🛠️ Development
 
 ```bash
 # Development
@@ -144,7 +156,7 @@ npm run lint
 
 ## 🎨 Tech Stack
 
-- **Frontend**: Next.js 15.4.4, React 19, TypeScript, Tailwind CSS 4
+- **Frontend**: Next.js 15.4.10, React 19, TypeScript, Tailwind CSS 4
 - **Backend**: Next.js API Routes, Papa Parse, Cheerio
 - **PDF**: @react-pdf/renderer
 - **Deploy**: Docker, Vercel, Google Cloud
