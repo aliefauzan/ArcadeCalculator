@@ -3,6 +3,7 @@ import { skillBadgeNames } from './skill-badges';
 
 // Badge classification patterns - exactly matching the original route
 const PATTERNS = {
+  // 1pts
   trivia: new RegExp([
     'Skills Boost Arcade Trivia July 2025 Week [1-4]',
     'Skills Boost Arcade Trivia August 2025 Week [1-4]',
@@ -12,6 +13,7 @@ const PATTERNS = {
     "Google Skills Arcade Trivia December 2025 Week [1-4]",
   ].join('|'), 'i'),
   
+  // 1pts
   arcade: new RegExp([
     'Level [1-3]:',
     'Skills Boost Arcade Base Camp July 2025',
@@ -26,6 +28,7 @@ const PATTERNS = {
     'Google Skills Arcade Base Camp December 2025',
   ].join('|'), 'i'),
   
+  // 2pts
   extraSkill: new RegExp([
     'extra',
     'ekstrakill',
@@ -33,9 +36,11 @@ const PATTERNS = {
     'ExtraSkillestrial!',
     'ExtraSkillestrial',
     'Future Ready Skills',
-    'Skills Scribble'
+    'Skills Scribble',
+    'Winter Wins'
   ].join('|'), 'i'),
   
+  // 3pts
   premiumExtra: new RegExp([
     'Diwali Dialogues',
     'Lights & Logic'
