@@ -26,6 +26,7 @@ const PATTERNS = {
     'Google Skills Arcade Certification Zone October 2025',
     'Google Skills Arcade Base Camp November 2025',
     'Google Skills Arcade Base Camp December 2025',
+    'Google Skills Arcade Certification Zone December 2025',
   ].join('|'), 'i'),
   
   // 2pts
@@ -52,7 +53,8 @@ const PATTERNS = {
     'Work Meets Play: Banking With Empathy',
     'Work Meets Play: Faster Finance',
     'Work Meets Play: Scaling Success Challenge',
-    'Work Meets Play: AI Assured'
+    'Work Meets Play: AI Assured',
+    'Work Meets Play: Burger Bytes'
   ].join('|'), 'i'), // These should not count as any badge type
 };
 
