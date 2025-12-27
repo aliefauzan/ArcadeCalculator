@@ -486,6 +486,15 @@
     "labs_count": "4"
   },
   {
+    "name": "Connecting Cloud Networks with NCC",
+    "url": "https://www.cloudskillsboost.google/course_templates/1364",
+    "level": "Intermediate",
+    "cost": "8 Credits",
+    "keyword": "Network Connectivity Center, HA-VPN, Hybrid Networking",
+    "duration": "2 jam 15 menit",
+    "labs_count": "4"
+  },
+  {
     "name": "Implement Cloud Security Fundamentals on Google Cloud",
     "url": "https://www.cloudskillsboost.google/course_templates/645",
     "level": "Intermediate",
