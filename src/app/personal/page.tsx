@@ -400,7 +400,7 @@ function PersonalProfileContent() {
                           <span className="text-xs text-cyan-400">ℹ️</span>
                         </button>
                       </td>
-                      <td className="py-2 px-2 text-center">{result.data.rawCounts.competitionPeriod.skillBadges}</td>
+                      <td className="py-2 px-2 text-center">{result.data.rawCounts.skillBadges}</td>
                       <td className="py-2 px-2 text-right">{result.data.skillPoints.toFixed(1)}</td>
                     </tr>
                     <tr className="border-b border-slate-700 hover:bg-slate-700/30">
@@ -413,7 +413,7 @@ function PersonalProfileContent() {
                           <span className="text-xs text-pink-400">ℹ️</span>
                         </button>
                       </td>
-                      <td className="py-2 px-2 text-center">{result.data.rawCounts.competitionPeriod.arcadeBadges}</td>
+                      <td className="py-2 px-2 text-center">{result.data.rawCounts.arcadeBadges}</td>
                       <td className="py-2 px-2 text-right">{result.data.arcadePoints.toFixed(1)}</td>
                     </tr>
                     <tr className="border-b border-slate-700 hover:bg-slate-700/30">
@@ -426,7 +426,7 @@ function PersonalProfileContent() {
                           <span className="text-xs text-green-400">ℹ️</span>
                         </button>
                       </td>
-                      <td className="py-2 px-2 text-center">{result.data.rawCounts.competitionPeriod.triviaBadges}</td>
+                      <td className="py-2 px-2 text-center">{result.data.rawCounts.triviaBadges}</td>
                       <td className="py-2 px-2 text-right">{result.data.triviaPoints.toFixed(1)}</td>
                     </tr>
                     <tr className="border-b border-slate-700 hover:bg-slate-700/30">
@@ -760,14 +760,14 @@ function PersonalProfileContent() {
                         {/* Badge List */}
                         <div className="max-h-96 overflow-y-auto space-y-2">
                           <div className="font-pixel text-green-400 text-sm mb-2">YOUR TRIVIA GAMES:</div>
-                          {result.data.badgeDetails.premium.map((badge, idx) => (
-                            <div key={idx} className="bg-slate-800/50 border border-purple-600/30 rounded p-3">
+                          {result.data.badgeDetails.trivia.map((badge, idx) => (
+                            <div key={idx} className="bg-slate-800/50 border border-green-600/30 rounded p-3">
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex-1">
                                   <div className="text-sm font-bold text-white">{badge.name}</div>
                                   <div className="text-xs text-slate-400 mt-1">Earned: {badge.earnedDate}</div>
                                 </div>
-                                <div className="text-purple-400 font-bold text-sm">3 pts</div>
+                                <div className="text-green-400 font-bold text-sm">1 pt</div>
                               </div>
                             </div>
                           ))}
