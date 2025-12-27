@@ -95,6 +95,8 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
 
   // **START: Enhanced Badge Classification - exactly from original**
   const normalizedTitle = badgeTitle.toLowerCase();
+  // Normalize whitespace: replace all whitespace sequences (including newlines) with single space
+  const normalizedWhitespace = normalizedTitle.replace(/\s+/g, ' ').trim();
   
   // Check for excluded badges first (should not count at all)
   if (PATTERNS.excluded.test(badgeTitle)) {
@@ -125,7 +127,7 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
     return { type: null, countsForMilestone: false }; // Skip completion badges
   }
   // Check if it's a valid skill badge by looking up in our skill badge database
-  else if (skillBadgeNames.includes(normalizedTitle)) {
+  else if (skillBadgeNames.includes(normalizedWhitespace)) {
     return { type: 'skill', countsForMilestone };
   }
 

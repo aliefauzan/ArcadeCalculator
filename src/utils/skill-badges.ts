@@ -12,8 +12,9 @@ function loadSkillBadges(): { names: readonly string[]; badges: readonly SkillBa
       fs.readFileSync(path.join(process.cwd(), 'skill-badges.json'), 'utf-8')
     );
     console.log(`📚 Loaded ${data.length} skill badge names for validation`);
+    // Normalize whitespace when loading: lowercase + replace all whitespace sequences with single space
     return {
-      names: Object.freeze(data.map(badge => badge.name.toLowerCase())),
+      names: Object.freeze(data.map(badge => badge.name.toLowerCase().replace(/\s+/g, ' ').trim())),
       badges: Object.freeze(data),
     };
   } catch (error) {
