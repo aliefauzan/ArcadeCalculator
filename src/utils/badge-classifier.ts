@@ -82,15 +82,21 @@ export async function classifyBadge($: cheerio.CheerioAPI, el: any): Promise<Bad
   
   const earnedDate = new Date(match[1]);
   const minDate = new Date('2025-07-15');
-  const maxDate = new Date('2025-09-16'); // Maximum date for milestone eligibility
+  const maxDate = new Date('2025-12-31'); // Maximum date for overall eligibility
+  const milestoneMaxDate = new Date('2025-09-16'); // Maximum date for milestone eligibility
   
   // If the badge was earned before the minimum date, skip it
   if (earnedDate < minDate) {
     return { type: null, countsForMilestone: false };
   }
   
+  // If the badge was earned after the maximum date, skip it entirely
+  if (earnedDate > maxDate) {
+    return { type: null, countsForMilestone: false };
+  }
+  
   // Determine if this badge counts for milestone calculation
-  const countsForMilestone = earnedDate <= maxDate;
+  const countsForMilestone = earnedDate <= milestoneMaxDate;
   // **END: Date Filtering Logic**
 
   // **START: Enhanced Badge Classification - exactly from original**
