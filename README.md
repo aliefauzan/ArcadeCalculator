@@ -5,7 +5,10 @@
 ![Arcade Theme](https://img.shields.io/badge/Theme-Retro%20Arcade-yellow) ![Next.js](https://img.shields.io/badge/Next.js-15.4.10-black) ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
 
 A Next.js web application with **modular architecture** that processes Google Cloud Skills Boost CSV data and generates interactive leaderboards with retro arcade aesthetics.
+### Screenshots
 
+![Arcade Calculator Demo](./image.png)
+![Arcade Calculator Demo1](./image1.png)
 ## ✨ Key Features
 
 - **🏗️ Modular Architecture**: Clean separation with shared types, constants, and reusable components
